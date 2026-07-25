@@ -15,7 +15,3 @@ service = "yongsheng-consulting"
 binding = "DB"
 database_name = "ticket-consulting"
 database_id = "7cf769c6-cdbf-4a8d-ba80-9cc425394da4"
-
-# Configure a comma-separated allowlist in Cloudflare after deployment:
-# wrangler secret put ADMIN_EMAILS
-# Example value: admin@example.com,operations@example.com
