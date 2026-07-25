@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getWorkerEnv, requireAdmin } from "@/lib/cloudflare";
+import { clearAdminSession, createAdminSession, getWorkerEnv, requireAdminSession, validateAdminPassword } from "@/lib/cloudflare";
 
 const json = (data: unknown, init?: ResponseInit) => NextResponse.json(data, init);
 
 export async function GET(request: NextRequest) {
   try {
-    const { env } = await requireAdmin(request);
+    await requireAdminSession(request);
+    const env = await getWorkerEnv();
     if (!env.DB) return json({ error: "D1 binding is unavailable" }, { status: 503 });
     const resource = new URL(request.url).searchParams.get("resource") ?? "dashboard";
     if (resource === "site") { const { results } = await env.DB.prepare("SELECT key, value FROM site_settings").all<{ key: string; value: string }>(); return json({ settings: Object.fromEntries(results.map(item => [item.key, item.value])) }); }
@@ -18,9 +19,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { env } = await requireAdmin(request);
-    if (!env.DB) return json({ error: "D1 binding is unavailable" }, { status: 503 });
     const body = await request.json() as Record<string, string | number | boolean | null>;
+    if (body.action === "login") {
+      if (!await validateAdminPassword(String(body.password ?? ""))) return json({ error: "密码不正确" }, { status: 401 });
+      const response = json({ ok: true }); response.headers.set("Set-Cookie", await createAdminSession()); return response;
+    }
+    if (body.action === "logout") { const response = json({ ok: true }); response.headers.set("Set-Cookie", clearAdminSession()); return response; }
+    await requireAdminSession(request);
+    const env = await getWorkerEnv();
+    if (!env.DB) return json({ error: "D1 binding is unavailable" }, { status: 503 });
     if (body.action === "site") {
       await env.DB.prepare("INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP").bind("title_zh", String(body.titleZh ?? "")).run();
       await env.DB.prepare("INSERT INTO site_settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP").bind("title_en", String(body.titleEn ?? "")).run();

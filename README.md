@@ -47,22 +47,15 @@ pnpm d1:remote:migrate
 pnpm cf:deploy
 ```
 
-## 后台访问控制
+## 后台登录
 
-使用 Cloudflare Access 保护以下路径：
-
-```text
-/admin*
-/api/admin*
-```
-
-设置管理员邮箱白名单：
+为 Worker 设置后台登录密码：
 
 ```bash
-npx wrangler secret put ADMIN_EMAILS
+npx wrangler secret put ADMIN_PASSWORD
 ```
 
-在 Zero Trust 的 Access Application 中，为对应邮箱配置 Allow Policy。生产环境依赖 Cloudflare Access 注入的身份信息；`.dev.vars` 中的本地管理员变量仅适用于 `wrangler dev`。
+输入一个长度至少 16 位、未在其他服务复用的高强度密码。后台登录成功后将使用有效期 8 小时的 HttpOnly 签名 Cookie；修改 Secret 会使所有既有登录失效。
 
 ## GitHub 构建部署
 
