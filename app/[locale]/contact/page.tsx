@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, type InputHTMLAttributes } from "react";
+import { use, useState, type InputHTMLAttributes } from "react";
 import { ArrowUpRight, Clock3, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { PageHero } from "@/components/shared";
 import { Button, Card, Select } from "@/components/ui";
 
-export default function Contact({ params }: { params: { locale: Locale } }) {
-  const locale = params.locale; const zh = locale === "zh"; const t = getDictionary(locale); const [sent, setSent] = useState(false);
+export default function Contact({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = use(params); const zh = locale === "zh"; const t = getDictionary(locale); const [sent, setSent] = useState(false);
   const labels = zh ? ["您的姓名", "联系电话", "咨询类型", "请描述您的情况"] : ["Your name", "Phone number", "Consultation type", "Tell us about your situation"];
   const details = [[Mail, zh ? "电子邮箱" : "Email", "info@yongshengconsulting.com", "mailto:info@yongshengconsulting.com"], [MapPin, zh ? "办公地址" : "Office", "123 Main Street, Suite 100, New York, NY 10001", "https://www.google.com/maps/search/?api=1&query=123+Main+Street,+New+York,+NY+10001"], [Clock3, zh ? "办公时间" : "Hours", zh ? "周一至周六 · 9:00 AM–6:00 PM" : "Monday–Saturday · 9:00 AM–6:00 PM", ""]] as const;
   return <><PageHero locale={locale} kicker="CONTACT" title={zh ? "从一次简单沟通开始。" : "Start with a simple conversation."} description={zh ? "告诉我们您的情况，我们会尽快联系您，协助判断下一步。" : "Tell us about your situation. We will be in touch to help clarify the next step."} image="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1800&q=85"/>

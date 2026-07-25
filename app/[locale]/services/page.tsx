@@ -12,8 +12,8 @@ const services: Service[] = [
   { icon: ShieldCheck, zh: "信用修复与信用保护", en: "Credit repair & protection", zhIntro: "信用报告中的错误或历史问题可能影响租房、贷款和日常财务安排。我们帮助您系统地识别、处理与保护信用记录。", enIntro: "Errors or historical issues in a credit report can affect housing, financing, and everyday planning. We help identify, address, and protect your record.", zhPoints: ["审阅信用报告中的异常与争议项目", "制定优先级清晰的改善步骤", "建立持续的信用保护建议"], enPoints: ["Review report anomalies and disputed items", "Prioritize practical improvement steps", "Establish ongoing credit-protection practices"], image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=1100&q=85" },
 ];
 
-export default function Services({ params }: { params: { locale: Locale } }) {
-  const locale = params.locale; const zh = locale === "zh";
+export default async function Services({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = await params; const zh = locale === "zh";
   const process = [[MessageCircle, zh ? "初步沟通" : "Initial consultation", zh ? "说明您的情况、已有资料和重要时间节点。" : "Share your situation, available records, and key timing."], [SearchCheck, zh ? "资料评估" : "Record review", zh ? "梳理事实、文件与可能影响，确认处理重点。" : "Review facts, records, and implications to identify priorities."], [ClipboardCheck, zh ? "制定方案" : "A clear plan", zh ? "说明下一步、配合事项与后续进度安排。" : "Confirm next steps, needed input, and progress updates."]];
   return <><PageHero locale={locale} kicker="SERVICES" title={zh ? "针对关键问题，提供专业支持。" : "Professional support for pivotal matters."} description={zh ? "我们以务实、透明的方式梳理情况，帮助您理解选择并稳妥推进。" : "We clarify the situation, explain your options, and help move matters forward with care."} image="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1800&q=85"/>
     <section className="mx-auto max-w-6xl px-5 py-20"><SectionHeading kicker="WHAT WE HANDLE" title={zh ? "服务范围" : "Our areas of support"} description={zh ? "先理解服务内容，再决定是否需要进一步咨询。" : "Understand the service first, then decide whether a consultation is right for you."}/>

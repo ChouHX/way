@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { ConsultationCallout, PageHero, SectionHeading } from "@/components/shared";
 import { MorphingDialog, MorphingDialogClose, MorphingDialogContainer, MorphingDialogContent, MorphingDialogDescription, MorphingDialogImage, MorphingDialogTitle, MorphingDialogTrigger } from "@/components/core/morphing-dialog";
@@ -16,8 +16,8 @@ const entries = [
   { type: "Traffic", zhType: "交通罚单", zh: "超速 · 纽约州", en: "Speeding · NY State", points: "3–11", insurance: "20%–50%", cost: "$1,500–$5,000 / 3 years", result: "处理成功", detailZh: "公开脱敏案例参考：潜在积分、保险及总成本通常与速度、条款和既往驾驶记录相关。", detailEn: "Public anonymized case reference: points, insurance, and costs often depend on speed, citation type, and driving history.", img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=900&q=80" },
 ];
 
-export default function Cases({ params }: { params: { locale: Locale } }) {
-  const locale = params.locale; const zh = locale === "zh"; const [filter, setFilter] = useState("All");
+export default function Cases({ params }: { params: Promise<{ locale: Locale }> }) {
+  const { locale } = use(params); const zh = locale === "zh"; const [filter, setFilter] = useState("All");
   const tabs = zh ? [["All", "全部"], ["Traffic", "交通罚单"]] : [["All", "All"], ["Traffic", "Traffic tickets"]];
   return <><PageHero locale={locale} kicker="CASE RESULTS" title={zh ? "结果背后，是清晰策略与持续跟进。" : "Every result begins with strategy and follow-through."} description={zh ? "以下为公开脱敏案例的摘要参考；积分、保险与实际结果均须按个案资料独立评估。" : "The following are summaries of publicly available anonymized case references. Points, insurance, and outcomes require individual assessment."} image="https://images.unsplash.com/photo-1528747008803-d74e2f7e1a79?auto=format&fit=crop&w=1800&q=85"/>
     <section className="mx-auto max-w-6xl px-5 py-20"><SectionHeading kicker="SELECTED OUTCOMES" title={zh ? "案例展示" : "Case results"}/><div className="mt-8 flex flex-wrap gap-2">{tabs.map(([key, label]) => <button key={key} onClick={() => setFilter(key)} className={`pressable border px-4 py-2 text-sm font-semibold ${filter === key ? "border-[#0f2747] bg-[#0f2747] text-white" : "border-slate-200 bg-white text-slate-600 hover:border-blue-600"}`}>{label}</button>)}</div>

@@ -1,8 +1,21 @@
-name = "ticket-consulting-assets"
-main = "worker/src/index.ts"
+name = "yongsheng-consulting"
+main = ".open-next/worker.js"
 compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "yongsheng-consulting"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "ticket-consulting"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "7cf769c6-cdbf-4a8d-ba80-9cc425394da4"
+
+# Configure a comma-separated allowlist in Cloudflare after deployment:
+# wrangler secret put ADMIN_EMAILS
+# Example value: admin@example.com,operations@example.com

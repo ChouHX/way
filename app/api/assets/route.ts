@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getWorkerEnv } from "@/lib/cloudflare";
 
-export const runtime = "edge";
-
-type D1Database = { prepare: (query: string) => { bind: (...values: string[]) => { all: <T>() => Promise<{ results: T[] }> } } };
-type CloudflareEnv = { DB?: D1Database };
-
-/**
- * Cloudflare Pages/Workers adapter exposes D1 on request.cf.env.DB.
- * Use /api/assets?section=hero or /api/assets?section=case-study.
- */
 export async function GET(request: NextRequest) {
   const section = new URL(request.url).searchParams.get("section");
-  const env = (request as NextRequest & { cf?: { env?: CloudflareEnv } }).cf?.env;
+  const env = await getWorkerEnv();
 
   if (!env?.DB) {
     return NextResponse.json({ assets: [], source: "no-d1-binding" });

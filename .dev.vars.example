@@ -1,0 +1,5 @@
+# Used by `wrangler dev` only. Copy this file to .dev.vars (never commit it).
+# Cloudflare Access normally supplies the authenticated email in production.
+APP_ENV=development
+ADMIN_EMAILS=admin@example.com
+LOCAL_ADMIN_EMAIL=admin@example.com
