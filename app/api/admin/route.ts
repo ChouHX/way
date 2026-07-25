@@ -45,5 +45,10 @@ export async function POST(request: NextRequest) {
       return json({ ok: true, id: body.id });
     }
     return json({ error: "Unsupported action" }, { status: 400 });
-  } catch (error) { if (error instanceof Response) return error; return json({ error: "Unable to save administration data" }, { status: 500 }); }
+  } catch (error) {
+    if (error instanceof Response) return error;
+    console.error("Admin save failed", error);
+    const message = error instanceof Error ? error.message : "Unable to save administration data";
+    return json({ error: message }, { status: 500 });
+  }
 }
