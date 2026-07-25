@@ -39,6 +39,11 @@ export async function POST(request: NextRequest) {
     if (body.action === "case") {
       const id = crypto.randomUUID(); await env.DB.prepare("INSERT INTO case_studies (id, category_id, title_zh, title_en, summary_zh, summary_en, content_zh, content_en, image_url, published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(id, body.categoryId || null, String(body.titleZh), String(body.titleEn), String(body.summaryZh), String(body.summaryEn), String(body.contentZh ?? ""), String(body.contentEn ?? ""), String(body.imageUrl ?? ""), body.published === false ? 0 : 1).run(); return json({ ok: true, id });
     }
+    if (body.action === "update-case") {
+      if (!body.id) return json({ error: "Case ID is required" }, { status: 400 });
+      await env.DB.prepare("UPDATE case_studies SET category_id = ?, title_zh = ?, title_en = ?, summary_zh = ?, summary_en = ?, content_zh = ?, content_en = ?, image_url = ?, published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(body.categoryId || null, String(body.titleZh), String(body.titleEn), String(body.summaryZh), String(body.summaryEn), String(body.contentZh ?? ""), String(body.contentEn ?? ""), String(body.imageUrl ?? ""), body.published === false ? 0 : 1, String(body.id)).run();
+      return json({ ok: true, id: body.id });
+    }
     return json({ error: "Unsupported action" }, { status: 400 });
   } catch (error) { if (error instanceof Response) return error; return json({ error: "Unable to save administration data" }, { status: 500 }); }
 }
