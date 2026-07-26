@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { clearAdminSession, createAdminSession, getWorkerEnv, requireAdminSession, validateAdminPassword } from "@/lib/cloudflare";
 
 const json = (data: unknown, init?: ResponseInit) => NextResponse.json(data, init);
+const categorySlug = (name: string) => {
+  const base = name.toLowerCase().trim().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${base || "category"}-${crypto.randomUUID().slice(0, 8)}`;
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +38,21 @@ export async function POST(request: NextRequest) {
       return json({ ok: true });
     }
     if (body.action === "category") {
-      const id = crypto.randomUUID(); await env.DB.prepare("INSERT INTO case_categories (id, slug, name_zh, name_en, sort_order) VALUES (?, ?, ?, ?, ?)").bind(id, String(body.slug), String(body.nameZh), String(body.nameEn), Number(body.sortOrder ?? 0)).run(); return json({ ok: true, id });
+      const id = crypto.randomUUID();
+      const slug = categorySlug(String(body.nameEn || body.nameZh || "category"));
+      await env.DB.prepare("INSERT INTO case_categories (id, slug, name_zh, name_en, sort_order) VALUES (?, ?, ?, ?, ?)").bind(id, slug, String(body.nameZh), String(body.nameEn), Number(body.sortOrder ?? 0)).run();
+      return json({ ok: true, id, slug });
+    }
+    if (body.action === "update-category") {
+      if (!body.id) return json({ error: "Category ID is required" }, { status: 400 });
+      await env.DB.prepare("UPDATE case_categories SET name_zh = ?, name_en = ?, sort_order = ? WHERE id = ?").bind(String(body.nameZh), String(body.nameEn), Number(body.sortOrder ?? 0), String(body.id)).run();
+      return json({ ok: true, id: body.id });
+    }
+    if (body.action === "delete-category") {
+      if (!body.id) return json({ error: "Category ID is required" }, { status: 400 });
+      await env.DB.prepare("UPDATE case_studies SET category_id = NULL, updated_at = CURRENT_TIMESTAMP WHERE category_id = ?").bind(String(body.id)).run();
+      await env.DB.prepare("DELETE FROM case_categories WHERE id = ?").bind(String(body.id)).run();
+      return json({ ok: true });
     }
     if (body.action === "case") {
       const id = crypto.randomUUID(); await env.DB.prepare("INSERT INTO case_studies (id, category_id, title_zh, title_en, summary_zh, summary_en, content_zh, content_en, image_url, published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(id, body.categoryId || null, String(body.titleZh), String(body.titleEn), String(body.summaryZh), String(body.summaryEn), String(body.contentZh ?? ""), String(body.contentEn ?? ""), String(body.imageUrl ?? ""), body.published === false ? 0 : 1).run(); return json({ ok: true, id });
