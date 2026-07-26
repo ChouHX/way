@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, Phone, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getDictionary, type Locale } from "@/lib/i18n";
@@ -182,6 +182,18 @@ export function MobileNav({ locale }: { locale: Locale }) {
                     </Link>
                   );
                 })}
+                <div className="border-t border-slate-200 py-4 md:hidden">
+                  <a
+                    href="tel:8881234567"
+                    className="pressable flex min-h-12 items-center justify-between bg-[#1a243f] px-4 text-sm font-bold text-white"
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Phone size={17} className="text-[#c5b780]" />
+                      {locale === "zh" ? "电话咨询" : "Call us"}
+                    </span>
+                    <span className="text-[#c5b780]">(888) 123-4567</span>
+                  </a>
+                </div>
               </div>
             </motion.nav>
           </>
