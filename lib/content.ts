@@ -153,7 +153,7 @@ export async function getPublicCasesPage({
 }
 export const getFeaturedPublicCases = () =>
   rows<PublicCase>(
-    `${publicCaseSelect} WHERE s.published=1 ORDER BY COALESCE(s.updated_at,s.created_at) DESC,s.created_at DESC LIMIT 12`,
+    `${publicCaseSelect} WHERE s.published=1 ORDER BY COALESCE(c.sort_order, 2147483647) ASC, CASE WHEN s.case_date IS NULL OR TRIM(s.case_date)='' OR LOWER(TRIM(s.case_date))='unknown' THEN 1 ELSE 0 END ASC, s.case_date DESC, s.created_at DESC LIMIT 12`,
   );
 export const getTaxonomy = async () => ({
   categories: await rows<Taxonomy>(

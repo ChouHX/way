@@ -142,7 +142,7 @@ const bodySummary = (body) =>
 const sql = ["PRAGMA foreign_keys = ON;"];
 Object.entries(categoryMap).forEach(([zh, [id, en]], index) =>
   sql.push(
-    `INSERT INTO case_categories (id, slug, name_zh, name_en, sort_order) VALUES (${q(id)}, ${q(id)}, ${q(zh)}, ${q(en)}, ${index}) ON CONFLICT(id) DO UPDATE SET name_zh=excluded.name_zh,name_en=excluded.name_en,sort_order=excluded.sort_order;`,
+    `INSERT INTO case_categories (id, slug, name_zh, name_en, sort_order) VALUES (${q(id)}, ${q(id)}, ${q(zh)}, ${q(en)}, ${index}) ON CONFLICT(id) DO UPDATE SET name_zh=excluded.name_zh,name_en=excluded.name_en;`,
   ),
 );
 
