@@ -14,6 +14,26 @@ const slug = (value) =>
 const key = (value) =>
   createHash("sha256").update(value).digest("hex").slice(0, 24);
 
+// The source export uses the literal string "unknown" for dates that were not
+// supplied.  It is metadata, not part of the case's display title.  Keep the
+// raw values for source_key stability, but never import the placeholder into
+// the public title/date fields.
+const normalizeDate = (value) => {
+  const date = String(value ?? "").trim();
+  return !date || /^unknown$/iu.test(date) ? null : date;
+};
+const normalizeTitle = (item, date) => {
+  const raw = String(item.title ?? "").trim();
+  const withoutUnknown = raw
+    .replace(/\s*[（(]\s*unknown\s*[）)]\s*$/iu, "")
+    .trim();
+  if (withoutUnknown) return withoutUnknown;
+  const type = String(item.type ?? "").trim();
+  const region = String(item.region ?? "").trim();
+  const base = [type, region].filter(Boolean).join(" — ");
+  return date ? `${base} (${date})` : base;
+};
+
 const categoryMap = {
   交通罚单: ["traffic-ticket", "Traffic Tickets"],
   法庭传票: ["court-summons", "Court Summons"],
@@ -155,6 +175,8 @@ for (const guide of guides) {
   );
 }
 for (const item of cases) {
+  const caseDate = normalizeDate(item.date);
+  const titleZh = normalizeTitle(item, caseDate);
   const categoryId =
       item.type === "其他"
         ? categoryMap["其他"][0]
@@ -164,10 +186,11 @@ for (const item of cases) {
   const sourceKey = key([item.title, item.imageUrl, item.date].join("|")),
     id = `yuanway-${sourceKey}`,
     summary = bodySummary(item.body);
-  const titleEn = `${translations[item.type] ?? item.type} - ${translations[item.region] ?? item.region} (${item.date})`;
+  const titleEnBase = `${translations[item.type] ?? item.type} - ${translations[item.region] ?? item.region}`;
+  const titleEn = caseDate ? `${titleEnBase} (${caseDate})` : titleEnBase;
   const contentEn = `Case reference involving ${translations[item.type] ?? item.type} in ${translations[item.region] ?? item.region}. The source summary describes the potential point, insurance, and cost exposure. The matter was handled successfully. Individual outcomes depend on the facts, record, jurisdiction, and applicable rules.`;
   sql.push(
-    `INSERT INTO case_studies (id,category_id,type_id,region_id,guide_id,title_zh,title_en,summary_zh,summary_en,content_zh,content_en,image_url,case_date,source_key,published,updated_at) VALUES (${q(id)},${q(categoryId)},${q(typeId)},${q(regionId)},${q(item.guideId || null)},${q(item.title)},${q(titleEn)},${q(summary)},${q(`An anonymized ${translations[item.type] ?? item.type} case from ${translations[item.region] ?? item.region}.`)},${q(item.body)},${q(contentEn)},${q(item.imageUrl)},${q(item.date)},${q(sourceKey)},1,CURRENT_TIMESTAMP) ON CONFLICT(source_key) DO UPDATE SET category_id=excluded.category_id,type_id=excluded.type_id,region_id=excluded.region_id,guide_id=excluded.guide_id,title_zh=excluded.title_zh,title_en=excluded.title_en,summary_zh=excluded.summary_zh,summary_en=excluded.summary_en,content_zh=excluded.content_zh,content_en=excluded.content_en,image_url=excluded.image_url,case_date=excluded.case_date,published=1,updated_at=CURRENT_TIMESTAMP;`,
+    `INSERT INTO case_studies (id,category_id,type_id,region_id,guide_id,title_zh,title_en,summary_zh,summary_en,content_zh,content_en,image_url,case_date,source_key,published,updated_at) VALUES (${q(id)},${q(categoryId)},${q(typeId)},${q(regionId)},${q(item.guideId || null)},${q(titleZh)},${q(titleEn)},${q(summary)},${q(`An anonymized ${translations[item.type] ?? item.type} case from ${translations[item.region] ?? item.region}.`)},${q(item.body)},${q(contentEn)},${q(item.imageUrl)},${q(caseDate)},${q(sourceKey)},1,CURRENT_TIMESTAMP) ON CONFLICT(source_key) DO UPDATE SET category_id=excluded.category_id,type_id=excluded.type_id,region_id=excluded.region_id,guide_id=excluded.guide_id,title_zh=excluded.title_zh,title_en=excluded.title_en,summary_zh=excluded.summary_zh,summary_en=excluded.summary_en,content_zh=excluded.content_zh,content_en=excluded.content_en,image_url=excluded.image_url,case_date=excluded.case_date,published=1,updated_at=CURRENT_TIMESTAMP;`,
   );
 }
 mkdirSync("data", { recursive: true });
