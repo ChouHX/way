@@ -77,6 +77,8 @@ async function rows<T>(query: string, ...bindings: unknown[]) {
 }
 const publicCaseSelect =
   "SELECT s.*,c.name_zh category_name_zh,c.name_en category_name_en,t.name_zh type_name_zh,t.name_en type_name_en,r.name_zh region_name_zh,r.name_en region_name_en,g.slug guide_slug,g.title_zh guide_title_zh,g.title_en guide_title_en,g.summary_zh guide_summary_zh,g.summary_en guide_summary_en FROM case_studies s LEFT JOIN case_categories c ON c.id=s.category_id LEFT JOIN case_types t ON t.id=s.type_id AND NOT (LOWER(TRIM(t.name_en))='other' OR TRIM(t.name_zh)='其他') LEFT JOIN case_regions r ON r.id=s.region_id LEFT JOIN guides g ON g.id=s.guide_id AND g.published=1";
+const publicCaseOrder =
+  "COALESCE(c.sort_order,2147483647) ASC,CASE WHEN s.case_date IS NULL OR TRIM(s.case_date)='' OR LOWER(TRIM(s.case_date))='unknown' THEN 1 ELSE 0 END ASC,s.case_date DESC,s.created_at DESC";
 
 export async function getPublicCasesPage({
   page = 1,
@@ -130,7 +132,7 @@ export async function getPublicCasesPage({
     const totalPages = Math.max(1, Math.ceil(total / safePageSize));
     const currentPage = Math.min(safePage, totalPages);
     const result = await DB.prepare(
-      `${publicCaseSelect} WHERE ${where} ORDER BY COALESCE(s.case_date,s.created_at) DESC,s.created_at DESC LIMIT ? OFFSET ?`,
+      `${publicCaseSelect} WHERE ${where} ORDER BY ${publicCaseOrder} LIMIT ? OFFSET ?`,
     )
       .bind(...bindings, safePageSize, (currentPage - 1) * safePageSize)
       .all<PublicCase>();
@@ -153,7 +155,7 @@ export async function getPublicCasesPage({
 }
 export const getFeaturedPublicCases = () =>
   rows<PublicCase>(
-    `${publicCaseSelect} WHERE s.published=1 ORDER BY COALESCE(c.sort_order, 2147483647) ASC, CASE WHEN s.case_date IS NULL OR TRIM(s.case_date)='' OR LOWER(TRIM(s.case_date))='unknown' THEN 1 ELSE 0 END ASC, s.case_date DESC, s.created_at DESC LIMIT 12`,
+    `${publicCaseSelect} WHERE s.published=1 ORDER BY ${publicCaseOrder} LIMIT 12`,
   );
 export const getTaxonomy = async () => ({
   categories: await rows<Taxonomy>(
