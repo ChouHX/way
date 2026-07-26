@@ -266,9 +266,9 @@ function CaseCard({ item, zh }: { item: PublicCase; zh: boolean }) {
           </Badge>
         </div>
         <div className="p-5">
-          <MorphingDialogTitle className="font-bold leading-6 text-[#0f2747]">
+          <h3 className="line-clamp-2 font-bold leading-6 text-[#0f2747]">
             {title}
-          </MorphingDialogTitle>
+          </h3>
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
             {type && <span>{type}</span>}
             {region && (

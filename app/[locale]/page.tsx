@@ -2,11 +2,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { ConsultationCallout } from "@/components/shared";
-import { Card } from "@/components/ui";
 import { TextEffect } from "@/components/core/text-effect";
 import { HeroStats, HomeServiceDialogs } from "@/components/home-showcase";
 import { HomeTicketGuide } from "@/components/home-ticket-guide";
 import { getFeaturedPublicCases } from "@/lib/content";
+import { HomeCaseMarquee } from "@/components/home-case-marquee";
 
 export default async function Home({
   params,
@@ -22,24 +22,25 @@ export default async function Home({
   const cases = await getFeaturedPublicCases();
   return (
     <>
-      <section className="relative isolate overflow-x-clip bg-[#06182d]">
+      <section className="relative isolate overflow-x-clip bg-[#06182d] pb-8 sm:pb-10">
         <img
           src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
           alt="New York city street"
-          className="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-45"
+          className="absolute inset-0 -z-20 h-full w-full scale-[1.01] object-cover object-center opacity-50"
         />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(4,18,35,.99)_4%,rgba(7,31,58,.94)_52%,rgba(8,35,65,.48)_82%,rgba(8,35,65,.3)_100%)]" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_38%,rgba(56,189,248,.2),transparent_25%)]" />
-        <div className="mx-auto flex min-h-[34rem] max-w-6xl items-center px-5 pb-24 pt-20 md:min-h-[40rem] md:pb-32 md:pt-24">
-          <div className="w-full max-w-4xl">
-            <p className="flex items-center gap-3 text-xs font-bold tracking-[.17em] text-sky-300">
-              <span className="h-px w-7 bg-sky-300/80" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,16,31,.99)_2%,rgba(6,29,55,.94)_48%,rgba(7,34,64,.56)_78%,rgba(7,30,57,.4)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_30%,rgba(56,189,248,.2),transparent_28%)]" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[#06182d] via-[#06182d]/65 to-transparent" />
+        <div className="mx-auto flex min-h-[31rem] max-w-6xl items-center px-5 pb-16 pt-16 sm:pb-20 sm:pt-20 md:min-h-[35rem] md:pb-24 md:pt-20">
+          <div className="w-full max-w-[52rem]">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
+              <span className="h-1.5 w-1.5 rounded-full bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
               {t.tagline}
             </p>
             <TextEffect
               per="line"
               as="h1"
-              className="mt-6 max-w-4xl text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.04] tracking-[-.045em] text-white"
+              className="mt-6 max-w-[52rem] text-[clamp(2.55rem,5.8vw,4.65rem)] font-bold leading-[1.03] tracking-[-.05em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,.2)]"
               segmentWrapperClassName="block overflow-hidden"
               variants={{
                 container: {
@@ -61,19 +62,19 @@ export default async function Home({
             >
               {heroLines}
             </TextEffect>
-            <p className="mt-7 max-w-2xl text-[1.05rem] font-medium leading-8 text-slate-200/95 md:text-lg">
+            <p className="mt-6 max-w-[40rem] text-base font-medium leading-7 text-slate-200/90 sm:text-[1.08rem] sm:leading-8">
               {t.heroSub}
             </p>
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
-                className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/25 hover:bg-blue-500"
+                className="pressable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
                 href={`/${locale}/contact`}
               >
                 {t.consult}
                 <ArrowRight size={16} />
               </Link>
               <Link
-                className="pressable inline-flex min-h-12 items-center justify-center border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.16)] backdrop-blur-md hover:bg-white/15"
+                className="pressable inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[.09] px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-xl hover:bg-white/[.14]"
                 href={`/${locale}/services`}
               >
                 {t.services}
@@ -82,9 +83,9 @@ export default async function Home({
           </div>
         </div>
         <HeroStats locale={locale} />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </section>
-      <section className="mx-auto max-w-6xl px-5 pb-20 pt-28">
+      <section className="mx-auto max-w-6xl px-5 pb-20 pt-20 sm:pt-24">
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold tracking-[.14em] text-blue-600">
@@ -132,42 +133,7 @@ export default async function Home({
             </Link>
           </div>
           {cases.length > 0 ? (
-            <div className="mt-10 grid gap-5 md:grid-cols-3">
-              {cases.map((item) => {
-                const title = zh ? item.title_zh : item.title_en;
-                const category = zh
-                  ? item.category_name_zh
-                  : item.category_name_en;
-                const type = zh ? item.type_name_zh : item.type_name_en;
-                const summary = zh ? item.summary_zh : item.summary_en;
-                return (
-                  <Link
-                    href={`/${locale}/cases`}
-                    key={item.id}
-                    className="case-card group"
-                  >
-                    <Card className="h-full overflow-hidden">
-                      <img
-                        src={item.image_url || "/logo-transparent.png"}
-                        alt={title}
-                        className="case-card-image h-44 w-full object-cover"
-                      />
-                      <div className="p-5">
-                        <p className="text-[11px] font-bold tracking-[.12em] text-blue-600">
-                          {category || type}
-                        </p>
-                        <h3 className="mt-2 font-bold text-[#0f2747]">
-                          {title}
-                        </h3>
-                        <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">
-                          {summary}
-                        </p>
-                      </div>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+            <HomeCaseMarquee locale={locale} cases={cases} />
           ) : (
             <div className="mt-10 border border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-500">
               {zh ? "后台暂未发布案例。" : "No cases have been published yet."}
