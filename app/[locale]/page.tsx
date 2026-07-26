@@ -6,14 +6,206 @@ import { Card } from "@/components/ui";
 import { TextEffect } from "@/components/core/text-effect";
 import { HeroStats, HomeServiceDialogs } from "@/components/home-showcase";
 import { HomeTicketGuide } from "@/components/home-ticket-guide";
+import { getFeaturedPublicCases } from "@/lib/content";
 
-export default async function Home({ params }: { params: Promise<{ locale: Locale }> }) {
-  const { locale } = await params; const t = getDictionary(locale); const zh = locale === "zh";
-  const heroLines = zh ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航" : "Practical guidance for ticket and\nimmigration matters that protect you.";
-  const cases = [{ type: zh ? "交通罚单" : "TRAFFIC", title: zh ? "驾驶时使用手机 · 纽约州" : "Cellphone use · NY State", result: zh ? "5 分风险参考" : "5-point reference", img: "https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=900&q=80" }, { type: zh ? "交通罚单" : "TRAFFIC", title: zh ? "违反交通信号 · 皇后区" : "Traffic signal · Queens", result: zh ? "3 分风险参考" : "3-point reference", img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80" }, { type: zh ? "交通罚单" : "TRAFFIC", title: zh ? "超速 · 纽约州" : "Speeding · NY State", result: zh ? "3–11 分风险参考" : "3–11 point reference", img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=900&q=80" }];
-  return <><section className="relative isolate overflow-x-clip bg-[#06182d]"><img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85" alt="New York city street" className="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-45"/><div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(4,18,35,.99)_4%,rgba(7,31,58,.94)_52%,rgba(8,35,65,.48)_82%,rgba(8,35,65,.3)_100%)]"/><div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_38%,rgba(56,189,248,.2),transparent_25%)]"/><div className="mx-auto flex min-h-[34rem] max-w-6xl items-center px-5 pb-24 pt-20 md:min-h-[40rem] md:pb-32 md:pt-24"><div className="w-full max-w-4xl"><p className="flex items-center gap-3 text-xs font-bold tracking-[.17em] text-sky-300"><span className="h-px w-7 bg-sky-300/80"/>{t.tagline}</p><TextEffect per="line" as="h1" className="mt-6 max-w-4xl text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.04] tracking-[-.045em] text-white" segmentWrapperClassName="block overflow-hidden" variants={{ container: { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.14 } } }, item: { hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.42, ease: [0.23, 1, 0.32, 1] } } } }}>{heroLines}</TextEffect><p className="mt-7 max-w-2xl text-[1.05rem] font-medium leading-8 text-slate-200/95 md:text-lg">{t.heroSub}</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><Link className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/25 hover:bg-blue-500" href={`/${locale}/contact`}>{t.consult}<ArrowRight size={16}/></Link><Link className="pressable inline-flex min-h-12 items-center justify-center border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.16)] backdrop-blur-md hover:bg-white/15" href={`/${locale}/services`}>{t.services}</Link></div></div></div><HeroStats locale={locale}/><div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"/></section>
-    <section className="mx-auto max-w-6xl px-5 pb-20 pt-28"><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold tracking-[.14em] text-blue-600">OUR SERVICES</p><h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">{zh ? "为您争取清晰、可行的解决方案" : "Clear, practical paths forward"}</h2></div><Link href={`/${locale}/services`} className="hidden text-sm font-bold text-blue-600 sm:block">{zh ? "全部服务" : "All services"} →</Link></div><HomeServiceDialogs locale={locale}/></section>
-    <HomeTicketGuide locale={locale}/>
-    <section className="border-y border-slate-200 bg-white"><div className="mx-auto max-w-6xl px-5 py-20"><div className="flex items-end justify-between gap-4"><div><p className="text-xs font-bold tracking-[.14em] text-blue-600">CASE RESULTS</p><h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">{zh ? "用结果，回应每一份托付。" : "Results that reflect careful work."}</h2><p className="mt-3 text-sm text-slate-600">{zh ? "部分公开脱敏案例展示；每个案件均须独立评估。" : "Selected public anonymized references; every matter requires individual assessment."}</p></div><Link href={`/${locale}/cases`} className="hidden text-sm font-bold text-blue-600 sm:block">{zh ? "查看全部案例" : "View all cases"} →</Link></div><div className="mt-10 grid gap-5 md:grid-cols-3">{cases.map(item => <Link href={`/${locale}/cases`} key={item.title} className="case-card group"><Card className="overflow-hidden"><img src={item.img} alt="" className="case-card-image h-44 w-full object-cover"/><div className="p-5"><p className="text-[11px] font-bold tracking-[.12em] text-blue-600">{item.type}</p><h3 className="mt-2 font-bold text-[#0f2747]">{item.title}</h3><p className="mt-4 text-sm font-bold text-slate-600">{item.result}</p></div></Card></Link>)}</div></div></section>
-    <section className="bg-[#f4f8fc]"><div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[.88fr_1.12fr]"><div><p className="text-xs font-bold tracking-[.14em] text-blue-600">WHY YONGSHENG</p><h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">{zh ? "把复杂问题，交给值得信赖的团队。" : "Bring complex matters to a team you can trust."}</h2><p className="mt-5 leading-7 text-slate-600">{zh ? "从首次咨询到后续跟进，我们始终保持清晰沟通，尊重您的时间、隐私和每一个重要决定。" : "From consultation through follow-up, we communicate clearly and respect your time, privacy, and decisions."}</p><Link href={`/${locale}/about`} className="pressable mt-7 inline-flex bg-[#0f2747] px-5 py-3 text-sm font-bold text-white hover:bg-[#173a68]">{zh ? "认识我们的团队" : "Meet our team"}</Link></div><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1100&q=85" className="h-full min-h-[260px] w-full object-cover" alt="consulting team"/></div></section><ConsultationCallout locale={locale}/></>;
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const t = getDictionary(locale);
+  const zh = locale === "zh";
+  const heroLines = zh
+    ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航"
+    : "Practical guidance for ticket and\nimmigration matters that protect you.";
+  const cases = await getFeaturedPublicCases();
+  return (
+    <>
+      <section className="relative isolate overflow-x-clip bg-[#06182d]">
+        <img
+          src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
+          alt="New York city street"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-center opacity-45"
+        />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(4,18,35,.99)_4%,rgba(7,31,58,.94)_52%,rgba(8,35,65,.48)_82%,rgba(8,35,65,.3)_100%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_38%,rgba(56,189,248,.2),transparent_25%)]" />
+        <div className="mx-auto flex min-h-[34rem] max-w-6xl items-center px-5 pb-24 pt-20 md:min-h-[40rem] md:pb-32 md:pt-24">
+          <div className="w-full max-w-4xl">
+            <p className="flex items-center gap-3 text-xs font-bold tracking-[.17em] text-sky-300">
+              <span className="h-px w-7 bg-sky-300/80" />
+              {t.tagline}
+            </p>
+            <TextEffect
+              per="line"
+              as="h1"
+              className="mt-6 max-w-4xl text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.04] tracking-[-.045em] text-white"
+              segmentWrapperClassName="block overflow-hidden"
+              variants={{
+                container: {
+                  hidden: { opacity: 0 },
+                  visible: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.14 },
+                  },
+                },
+                item: {
+                  hidden: { opacity: 0, y: 18 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.42, ease: [0.23, 1, 0.32, 1] },
+                  },
+                },
+              }}
+            >
+              {heroLines}
+            </TextEffect>
+            <p className="mt-7 max-w-2xl text-[1.05rem] font-medium leading-8 text-slate-200/95 md:text-lg">
+              {t.heroSub}
+            </p>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Link
+                className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-slate-950/25 hover:bg-blue-500"
+                href={`/${locale}/contact`}
+              >
+                {t.consult}
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                className="pressable inline-flex min-h-12 items-center justify-center border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.16)] backdrop-blur-md hover:bg-white/15"
+                href={`/${locale}/services`}
+              >
+                {t.services}
+              </Link>
+            </div>
+          </div>
+        </div>
+        <HeroStats locale={locale} />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      </section>
+      <section className="mx-auto max-w-6xl px-5 pb-20 pt-28">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+              OUR SERVICES
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+              {zh
+                ? "为您争取清晰、可行的解决方案"
+                : "Clear, practical paths forward"}
+            </h2>
+          </div>
+          <Link
+            href={`/${locale}/services`}
+            className="hidden text-sm font-bold text-blue-600 sm:block"
+          >
+            {zh ? "全部服务" : "All services"} →
+          </Link>
+        </div>
+        <HomeServiceDialogs locale={locale} />
+      </section>
+      <HomeTicketGuide locale={locale} />
+      <section className="border-y border-slate-200 bg-white">
+        <div className="mx-auto max-w-6xl px-5 py-20">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+                CASE RESULTS
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+                {zh
+                  ? "用结果，回应每一份托付。"
+                  : "Results that reflect careful work."}
+              </h2>
+              <p className="mt-3 text-sm text-slate-600">
+                {zh
+                  ? "部分公开脱敏案例展示；每个案件均须独立评估。"
+                  : "Selected public anonymized references; every matter requires individual assessment."}
+              </p>
+            </div>
+            <Link
+              href={`/${locale}/cases`}
+              className="hidden text-sm font-bold text-blue-600 sm:block"
+            >
+              {zh ? "查看全部案例" : "View all cases"} →
+            </Link>
+          </div>
+          {cases.length > 0 ? (
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {cases.map((item) => {
+                const title = zh ? item.title_zh : item.title_en;
+                const category = zh
+                  ? item.category_name_zh
+                  : item.category_name_en;
+                const type = zh ? item.type_name_zh : item.type_name_en;
+                const summary = zh ? item.summary_zh : item.summary_en;
+                return (
+                  <Link
+                    href={`/${locale}/cases`}
+                    key={item.id}
+                    className="case-card group"
+                  >
+                    <Card className="h-full overflow-hidden">
+                      <img
+                        src={item.image_url || "/logo-transparent.png"}
+                        alt={title}
+                        className="case-card-image h-44 w-full object-cover"
+                      />
+                      <div className="p-5">
+                        <p className="text-[11px] font-bold tracking-[.12em] text-blue-600">
+                          {category || type}
+                        </p>
+                        <h3 className="mt-2 font-bold text-[#0f2747]">
+                          {title}
+                        </h3>
+                        <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">
+                          {summary}
+                        </p>
+                      </div>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-10 border border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-500">
+              {zh ? "后台暂未发布案例。" : "No cases have been published yet."}
+            </div>
+          )}
+        </div>
+      </section>
+      <section className="bg-[#f4f8fc]">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[.88fr_1.12fr]">
+          <div>
+            <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+              WHY YONGSHENG
+            </p>
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+              {zh
+                ? "把复杂问题，交给值得信赖的团队。"
+                : "Bring complex matters to a team you can trust."}
+            </h2>
+            <p className="mt-5 leading-7 text-slate-600">
+              {zh
+                ? "从首次咨询到后续跟进，我们始终保持清晰沟通，尊重您的时间、隐私和每一个重要决定。"
+                : "From consultation through follow-up, we communicate clearly and respect your time, privacy, and decisions."}
+            </p>
+            <Link
+              href={`/${locale}/about`}
+              className="pressable mt-7 inline-flex bg-[#0f2747] px-5 py-3 text-sm font-bold text-white hover:bg-[#173a68]"
+            >
+              {zh ? "认识我们的团队" : "Meet our team"}
+            </Link>
+          </div>
+          <img
+            src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1100&q=85"
+            className="h-full min-h-[260px] w-full object-cover"
+            alt="consulting team"
+          />
+        </div>
+      </section>
+      <ConsultationCallout locale={locale} />
+    </>
+  );
 }
