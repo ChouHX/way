@@ -5,6 +5,7 @@ import type { Locale } from "@/lib/i18n";
 import { getGuide, getGuideCases } from "@/lib/content";
 import { Badge, Card } from "@/components/ui";
 import { ConsultationCallout } from "@/components/shared";
+import { publicCaseCategories } from "@/lib/case-categories";
 
 export const dynamic = "force-dynamic";
 function Content({ text }: { text: string }) {
@@ -35,13 +36,17 @@ export default async function GuidePage({
     guide = await getGuide(slug);
   if (!guide) notFound();
   const cases = await getGuideCases(guide.id);
+  const casesHref = `/${locale}/cases/${
+    publicCaseCategories.find((category) => category.id === guide.category_id)
+      ?.slug ?? "traffic-ticket"
+  }`;
   return (
     <>
       <main>
         <section className="border-b border-slate-200 bg-[#f4f4f4]">
           <div className="mx-auto max-w-4xl px-5 py-14 sm:py-20">
             <Link
-              href={`/${locale}/cases`}
+              href={casesHref}
               className="inline-flex items-center gap-2 text-sm font-bold text-[#8a7d51] hover:text-[#716641]"
             >
               <ArrowLeft size={16} />
@@ -105,7 +110,7 @@ export default async function GuidePage({
                   </h2>
                 </div>
                 <Link
-                  href={`/${locale}/cases`}
+                  href={casesHref}
                   className="inline-flex items-center gap-1.5 text-sm font-bold text-[#8a7d51]"
                 >
                   {zh ? "全部案例" : "All cases"}
@@ -114,7 +119,7 @@ export default async function GuidePage({
               </div>
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cases.map((item) => (
-                  <Link key={item.id} href={`/${locale}/cases`}>
+                  <Link key={item.id} href={casesHref}>
                     <Card className="h-full p-5 transition hover:border-[#d9d1b5] hover:shadow-md">
                       <Badge>
                         {zh ? item.type_name_zh : item.type_name_en}

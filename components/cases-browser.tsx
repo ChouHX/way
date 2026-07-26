@@ -10,19 +10,19 @@ import { CaseCard } from "@/components/case-card";
 
 export function CasesBrowser({
   locale,
+  category,
   initialPage,
   taxonomy,
 }: {
   locale: Locale;
+  category: Taxonomy;
   initialPage: PublicCasesPage;
   taxonomy: {
-    categories: Taxonomy[];
     types: Taxonomy[];
     regions: Taxonomy[];
   };
 }) {
   const zh = locale === "zh";
-  const [category, setCategory] = useState("");
   const [type, setType] = useState("");
   const [region, setRegion] = useState("");
   const [cases, setCases] = useState(initialPage.cases);
@@ -31,18 +31,19 @@ export function CasesBrowser({
   const [totalPages, setTotalPages] = useState(initialPage.totalPages);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showLoadMore, setShowLoadMore] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const requestId = useRef(0);
   const mountedFilters = useRef(false);
   const retryRequest = useRef({ page: 1, replace: true });
-  const filters = useRef({ category, type, region });
+  const filters = useRef({ category: category.id, type, region });
   const types = taxonomy.types.filter(
-    (item) => !category || item.category_id === category,
+    (item) => item.category_id === category.id,
   );
 
   useEffect(() => {
-    filters.current = { category, type, region };
-  }, [category, type, region]);
+    filters.current = { category: category.id, type, region };
+  }, [category.id, type, region]);
 
   const fetchPage = useCallback(
     async (nextPage: number, replace = false) => {
@@ -81,7 +82,7 @@ export function CasesBrowser({
   );
 
   useEffect(() => {
-    filters.current = { category, type, region };
+    filters.current = { category: category.id, type, region };
     if (!mountedFilters.current) {
       mountedFilters.current = true;
       return;
@@ -90,21 +91,26 @@ export function CasesBrowser({
     setPage(0);
     setTotal(0);
     setTotalPages(1);
+    setShowLoadMore(false);
     void fetchPage(1, true);
-  }, [category, type, region, fetchPage]);
+  }, [category.id, type, region, fetchPage]);
 
   useEffect(() => {
     const target = sentinel.current;
-    if (!target || loading || page >= totalPages) return;
+    if (!target || page >= totalPages) return;
+    if (!("IntersectionObserver" in window)) {
+      setShowLoadMore(true);
+      return;
+    }
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) void fetchPage(page + 1);
+        if (entries[0]?.isIntersecting) setShowLoadMore(true);
       },
-      { rootMargin: "300px 0px" },
+      { threshold: 0.25 },
     );
     observer.observe(target);
     return () => observer.disconnect();
-  }, [fetchPage, loading, page, totalPages]);
+  }, [page, totalPages]);
 
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
@@ -114,7 +120,9 @@ export function CasesBrowser({
             SELECTED MATTERS
           </p>
           <h2 className="mt-2 text-3xl font-bold tracking-[-.04em] text-[#1a243f]">
-            {zh ? "案例资料库" : "Case library"}
+            {zh
+              ? `${category.name_zh}案例资料库`
+              : `${category.name_en} case library`}
           </h2>
           <p className="mt-2 text-sm text-slate-500" aria-live="polite">
             {zh
@@ -122,22 +130,7 @@ export function CasesBrowser({
               : `${total} anonymized cases, ${cases.length} loaded`}
           </p>
         </div>
-        <div className="grid gap-2 sm:grid-cols-3 md:w-[620px]">
-          <Select
-            aria-label={zh ? "大类" : "Category"}
-            value={category}
-            onChange={(event) => {
-              setCategory(event.target.value);
-              setType("");
-            }}
-          >
-            <option value="">{zh ? "全部大类" : "All categories"}</option>
-            {taxonomy.categories.map((item) => (
-              <option key={item.id} value={item.id}>
-                {zh ? item.name_zh : item.name_en}
-              </option>
-            ))}
-          </Select>
+        <div className="grid gap-2 sm:grid-cols-2 md:w-[410px]">
           <Select
             aria-label={zh ? "罚单类型" : "Ticket type"}
             value={type}
@@ -210,6 +203,22 @@ export function CasesBrowser({
             {zh ? "正在加载更多案例…" : "Loading more cases…"}
           </span>
         )}
+        {!loading &&
+          !error &&
+          showLoadMore &&
+          cases.length > 0 &&
+          page < totalPages && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowLoadMore(false);
+                void fetchPage(page + 1);
+              }}
+              className="pressable border border-[#1a243f] bg-[#1a243f] px-6 py-3 text-sm font-bold text-white hover:bg-[#273452]"
+            >
+              {zh ? "加载更多" : "Load more"}
+            </button>
+          )}
         {!loading && cases.length > 0 && page >= totalPages && (
           <span className="text-xs text-slate-400">
             {zh ? "已加载全部案例" : "All cases loaded"}

@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 import { localizeService, serviceItems } from "@/lib/services";
+import { publicCaseCategories } from "@/lib/case-categories";
 import { MobileNav } from "./mobile-nav";
 import { LanguageMenu } from "./language-menu";
 import { PageTransition } from "./page-transition";
@@ -44,7 +45,9 @@ export function SiteShell({
   const t = getDictionary(locale);
   const pathname = usePathname();
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [casesOpen, setCasesOpen] = useState(false);
   const servicesRef = useRef<HTMLDivElement>(null);
+  const casesRef = useRef<HTMLDivElement>(null);
   const currentIndex = Math.max(
     0,
     paths.findIndex((path) =>
@@ -54,10 +57,14 @@ export function SiteShell({
     ),
   );
 
-  useEffect(() => setServicesOpen(false), [pathname]);
+  useEffect(() => {
+    setServicesOpen(false);
+    setCasesOpen(false);
+  }, [pathname]);
   useEffect(() => {
     const closeOnOutsideClick = (event: MouseEvent) => {
       if (!servicesRef.current?.contains(event.target as Node)) setServicesOpen(false);
+      if (!casesRef.current?.contains(event.target as Node)) setCasesOpen(false);
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setServicesOpen(false);
@@ -71,7 +78,10 @@ export function SiteShell({
   }, []);
 
   return (
-    <>
+    <div
+      lang={locale === "zh" ? "zh-CN" : "en"}
+      className="site-locale"
+    >
       <header className="sticky top-0 z-40 bg-[#1a243f] shadow-[0_1px_0_rgba(255,255,255,.1)]">
         <div className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5">
           <Brand locale={locale} />
@@ -147,6 +157,58 @@ export function SiteShell({
                   </div>
                 );
               }
+              if (index === 2) {
+                return (
+                  <div
+                    key={item}
+                    ref={casesRef}
+                    className="relative flex h-full items-center"
+                    onMouseEnter={() => setCasesOpen(true)}
+                    onMouseLeave={() => setCasesOpen(false)}
+                    onBlur={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) setCasesOpen(false);
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={casesOpen}
+                      aria-haspopup="menu"
+                      onClick={() => setCasesOpen((open) => !open)}
+                      className={`nav-link relative inline-flex items-center gap-1.5 py-2 text-sm font-semibold tracking-[-.01em] transition-colors ${
+                        active
+                          ? "nav-link-active text-white"
+                          : "text-white/75 hover:text-white"
+                      }`}
+                    >
+                      {item}
+                      <ChevronDown
+                        size={15}
+                        className={`transition-transform duration-200 ${casesOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+                    <div
+                      role="menu"
+                      className={`absolute left-1/2 top-full w-64 -translate-x-1/2 border-t-2 border-[#8a7d51] bg-white p-2 shadow-[0_18px_45px_rgba(0,0,0,.2)] transition duration-150 ${
+                        casesOpen
+                          ? "visible translate-y-0 opacity-100"
+                          : "invisible -translate-y-1 opacity-0"
+                      }`}
+                    >
+                      {publicCaseCategories.map((category) => (
+                        <Link
+                          key={category.id}
+                          href={`/${locale}/cases/${category.slug}`}
+                          role="menuitem"
+                          className="flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-[#f4f1e8] hover:text-[#1a243f]"
+                        >
+                          {locale === "zh" ? category.nameZh : category.nameEn}
+                          <span className="text-[#8a7d51]">→</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <Link
                   key={item}
@@ -183,7 +245,7 @@ export function SiteShell({
       </header>
       <PageTransition>{children}</PageTransition>
       <Footer locale={locale} />
-    </>
+    </div>
   );
 }
 
@@ -206,7 +268,11 @@ function Footer({ locale }: { locale: Locale }) {
             {[2, 3, 4].map((index) => (
               <Link
                 key={paths[index]}
-                href={`/${locale}${paths[index]}`}
+                href={
+                  index === 2
+                    ? `/${locale}/cases/traffic-ticket`
+                    : `/${locale}${paths[index]}`
+                }
                 className="hover:text-[#c5b780]"
               >
                 {t.nav[index]}

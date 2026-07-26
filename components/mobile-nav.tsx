@@ -7,12 +7,14 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { localizeService, serviceItems } from "@/lib/services";
+import { publicCaseCategories } from "@/lib/case-categories";
 
 const paths = ["", "/services", "/cases", "/about", "/contact"];
 
 export function MobileNav({ locale }: { locale: Locale }) {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
+  const [casesOpen, setCasesOpen] = useState(false);
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const t = getDictionary(locale);
@@ -20,6 +22,7 @@ export function MobileNav({ locale }: { locale: Locale }) {
   useEffect(() => {
     setOpen(false);
     setServicesOpen(false);
+    setCasesOpen(false);
   }, [pathname]);
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -72,7 +75,10 @@ export function MobileNav({ locale }: { locale: Locale }) {
               <div className="mx-auto grid max-w-6xl px-5 py-3">
                 {t.nav.map((item, index) => {
                   const href = `/${locale}${paths[index]}`;
-                  const active = index === 1 ? pathname.startsWith(href) : pathname === href;
+                  const active =
+                    index === 1 || index === 2
+                      ? pathname.startsWith(href)
+                      : pathname === href;
 
                   if (index === 1) {
                     return (
@@ -121,6 +127,47 @@ export function MobileNav({ locale }: { locale: Locale }) {
                     );
                   }
 
+                  if (index === 2) {
+                    return (
+                      <div key={item} className="border-b border-slate-200">
+                        <button
+                          type="button"
+                          aria-expanded={casesOpen}
+                          onClick={() => setCasesOpen((value) => !value)}
+                          className={`flex min-h-12 w-full items-center justify-between text-sm font-semibold ${active ? "text-[#8a7d51]" : "text-slate-700"}`}
+                        >
+                          <span>{item}</span>
+                          <ChevronDown
+                            size={17}
+                            className={`transition-transform ${casesOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {casesOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="mb-3 border-l-2 border-[#8a7d51] bg-[#f4f1e8] px-4 py-2">
+                                {publicCaseCategories.map((category) => (
+                                  <Link
+                                    key={category.id}
+                                    href={`/${locale}/cases/${category.slug}`}
+                                    className="block py-2 text-xs font-semibold text-slate-600"
+                                  >
+                                    {locale === "zh" ? category.nameZh : category.nameEn}
+                                  </Link>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item}
@@ -129,7 +176,9 @@ export function MobileNav({ locale }: { locale: Locale }) {
                       className={`flex min-h-12 items-center justify-between border-b border-slate-200 text-sm font-semibold last:border-b-0 ${active ? "text-[#8a7d51]" : "text-slate-700"}`}
                     >
                       <span>{item}</span>
-                      {active && <span className="h-1.5 w-1.5 bg-[#8a7d51]" />}
+                      {active && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-[#8a7d51]" />
+                      )}
                     </Link>
                   );
                 })}

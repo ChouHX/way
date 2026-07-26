@@ -35,7 +35,7 @@ export default async function Home({
           <div className="mx-auto flex min-h-[31rem] max-w-6xl items-center px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:py-20">
             <div className="w-full max-w-[51rem]">
               <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-[#d9d1b5] shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
-                <span className="h-1.5 w-1.5 bg-[#c5b780] shadow-[0_0_0_4px_rgba(197,183,128,.12)]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#c5b780] shadow-[0_0_0_4px_rgba(197,183,128,.12)]" />
                 {t.tagline}
               </p>
               <TextEffect
@@ -132,7 +132,7 @@ export default async function Home({
               </p>
             </div>
             <Link
-              href={`/${locale}/cases`}
+              href={`/${locale}/cases/traffic-ticket`}
               className="hidden text-sm font-bold text-[#8a7d51] sm:block"
             >
               {zh ? "查看全部案例" : "View all cases"} →
