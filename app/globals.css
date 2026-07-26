@@ -6,13 +6,13 @@ html {
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: #94a3b8 #f8fafc;
+  scrollbar-color: #8a7d51 #f4f4f4;
 }
 body {
   margin: 0;
   overflow-x: clip;
-  background: #f8fafc;
-  color: #0f172a;
+  background: #f4f4f4;
+  color: #181818;
   font-family:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
     "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
@@ -25,23 +25,23 @@ body {
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: #94a3b8 #f8fafc;
+  scrollbar-color: #8a7d51 #f4f4f4;
 }
 *::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 *::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: #f4f4f4;
 }
 *::-webkit-scrollbar-thumb {
   min-height: 2.5rem;
-  border: 3px solid #f8fafc;
+  border: 3px solid #f4f4f4;
   border-radius: 999px;
-  background: #94a3b8;
+  background: #8a7d51;
 }
 *::-webkit-scrollbar-corner {
-  background: #f8fafc;
+  background: #f4f4f4;
 }
 h1,
 h2,
@@ -59,25 +59,25 @@ samp {
   font-family: inherit;
 }
 ::selection {
-  background: #bfdbfe;
-  color: #0f172a;
+  background: #d9d1b5;
+  color: #181818;
 }
 .hero-shade {
   background: linear-gradient(
     90deg,
-    rgba(3, 20, 45, 0.94) 0%,
-    rgba(8, 39, 78, 0.78) 48%,
-    rgba(8, 29, 59, 0.22) 100%
+    rgba(26, 36, 63, 0.96) 0%,
+    rgba(26, 36, 63, 0.82) 48%,
+    rgba(26, 36, 63, 0.28) 100%
   );
 }
 .mesh {
   background-image:
     radial-gradient(
       circle at 10% 10%,
-      rgba(37, 99, 235, 0.12),
+      rgba(138, 125, 81, 0.12),
       transparent 25%
     ),
-    radial-gradient(circle at 90% 0%, rgba(14, 165, 233, 0.13), transparent 26%);
+    radial-gradient(circle at 90% 0%, rgba(197, 183, 128, 0.13), transparent 26%);
 }
 .pressable {
   transition:
@@ -97,7 +97,7 @@ samp {
   height: 2px;
   transform: scaleX(0);
   transform-origin: right;
-  background: #2563eb;
+  background: #8a7d51;
   transition: transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 .nav-link-active::after {
@@ -268,14 +268,14 @@ samp {
     transform-origin: left;
   }
   .case-card:hover {
-    border-color: #bfdbfe;
-    box-shadow: 0 10px 28px rgba(15, 39, 71, 0.1);
+    border-color: #c5b780;
+    box-shadow: 0 10px 28px rgba(26, 36, 63, 0.1);
   }
   .case-card:hover .case-card-image {
     transform: scale(1.015);
   }
   .service-dialog-trigger:hover {
-    background-color: #f8fafc;
+    background-color: #faf9f5;
   }
 }
 
@@ -286,7 +286,7 @@ samp {
 }
 .guide-content h2 {
   margin: 2rem 0 0.75rem;
-  color: #0f2747;
+  color: #1a243f;
   font-size: 1.25rem;
   line-height: 1.4;
   font-weight: 750;
@@ -297,12 +297,12 @@ samp {
 }
 .guide-content .guide-list-item {
   margin: 0.35rem 0;
-  border-left: 2px solid #bfdbfe;
+  border-left: 2px solid #c5b780;
   padding-left: 0.9rem;
 }
 @media (prefers-reduced-transparency: reduce) {
   header {
-    background: #fff !important;
+    background: #1a243f !important;
     backdrop-filter: none !important;
   }
 }

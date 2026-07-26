@@ -62,12 +62,12 @@ export function CaseCard({
             loading="lazy"
             className="case-card-image h-44 w-full object-cover"
           />
-          <Badge className="absolute left-3 top-3 border-white/70 bg-white/90 text-[#0f2747] shadow-sm backdrop-blur-md">
+          <Badge className="absolute left-3 top-3 border-white/70 bg-white/90 text-[#1a243f] shadow-sm backdrop-blur-md">
             {category || type}
           </Badge>
         </div>
         <div className="flex flex-1 flex-col p-5">
-          <h3 className="line-clamp-2 min-h-12 font-bold leading-6 text-[#0f2747]">
+          <h3 className="line-clamp-2 min-h-12 font-bold leading-6 text-[#1a243f]">
             {title}
           </h3>
           <div className="mt-2 flex min-h-4 flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-500">
@@ -102,7 +102,7 @@ export function CaseCard({
                   </Badge>
                 )}
               </div>
-              <MorphingDialogTitle className="mt-3 text-2xl font-bold tracking-[-.03em] text-[#0f2747]">
+              <MorphingDialogTitle className="mt-3 text-2xl font-bold tracking-[-.03em] text-[#1a243f]">
                 {title}
               </MorphingDialogTitle>
               <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
@@ -132,23 +132,23 @@ export function CaseCard({
               {item.guide_slug && guideTitle && (
                 <Link
                   href={`/${locale}/guides/${item.guide_slug}`}
-                  className="group mt-6 block border border-blue-100 bg-blue-50/70 p-4 transition hover:border-blue-200 hover:bg-blue-50"
+                  className="group mt-6 block border border-[#e3ddc8] bg-[#f4f1e8]/70 p-4 transition hover:border-[#d9d1b5] hover:bg-[#f4f1e8]"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-blue-700 shadow-sm">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-[#716641] shadow-sm">
                       <BookOpen size={15} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center justify-between gap-3">
-                        <b className="text-[10px] tracking-[.12em] text-blue-700">
+                        <b className="text-[10px] tracking-[.12em] text-[#716641]">
                           {zh ? "相关知识" : "RELATED GUIDE"}
                         </b>
                         <ArrowUpRight
                           size={14}
-                          className="shrink-0 text-blue-600 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                          className="shrink-0 text-[#8a7d51] transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                         />
                       </span>
-                      <strong className="mt-1.5 block text-sm leading-6 text-[#0f2747]">
+                      <strong className="mt-1.5 block text-sm leading-6 text-[#1a243f]">
                         {guideTitle}
                       </strong>
                       {guideSummary && (

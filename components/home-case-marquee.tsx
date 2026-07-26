@@ -45,7 +45,7 @@ export function HomeCaseMarquee({
                   ? "暂停滚动"
                   : "Pause scrolling"
             }
-            className="home-case-marquee-control pressable grid h-9 w-9 place-items-center border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600"
+            className="home-case-marquee-control pressable grid h-9 w-9 place-items-center border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-[#d9d1b5] hover:text-[#8a7d51]"
           >
             {paused ? (
               <Play size={14} fill="currentColor" />

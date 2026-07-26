@@ -38,11 +38,11 @@ export default async function GuidePage({
   return (
     <>
       <main>
-        <section className="border-b border-slate-200 bg-[#f7f9fc]">
+        <section className="border-b border-slate-200 bg-[#f4f4f4]">
           <div className="mx-auto max-w-4xl px-5 py-14 sm:py-20">
             <Link
               href={`/${locale}/cases`}
-              className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#8a7d51] hover:text-[#716641]"
             >
               <ArrowLeft size={16} />
               {zh ? "返回案例资料库" : "Back to case library"}
@@ -57,7 +57,7 @@ export default async function GuidePage({
                 </Badge>
               )}
             </div>
-            <h1 className="mt-5 max-w-3xl text-3xl font-bold leading-tight tracking-[-.045em] text-[#0f2747] sm:text-5xl">
+            <h1 className="mt-5 max-w-3xl text-3xl font-bold leading-tight tracking-[-.045em] text-[#1a243f] sm:text-5xl">
               {zh ? guide.title_zh : guide.title_en}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600">
@@ -69,8 +69,8 @@ export default async function GuidePage({
           <Content text={zh ? guide.content_zh : guide.content_en} />
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
             <Card className="p-5">
-              <CalendarClock size={19} className="text-blue-600" />
-              <h2 className="mt-3 text-sm font-bold text-[#0f2747]">
+              <CalendarClock size={19} className="text-[#8a7d51]" />
+              <h2 className="mt-3 text-sm font-bold text-[#1a243f]">
                 {zh ? "收到通知后" : "After receiving notice"}
               </h2>
               <p className="mt-2 text-xs leading-5 text-slate-500">
@@ -80,8 +80,8 @@ export default async function GuidePage({
               </p>
             </Card>
             <Card className="p-5">
-              <Scale size={19} className="text-blue-600" />
-              <h2 className="mt-3 text-sm font-bold text-[#0f2747]">
+              <Scale size={19} className="text-[#8a7d51]" />
+              <h2 className="mt-3 text-sm font-bold text-[#1a243f]">
                 {zh ? "重要说明" : "Important"}
               </h2>
               <p className="mt-2 text-xs leading-5 text-slate-500">
@@ -97,16 +97,16 @@ export default async function GuidePage({
             <div className="mx-auto max-w-5xl px-5 py-12">
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+                  <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
                     RELATED CASES
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold tracking-[-.035em] text-[#0f2747]">
+                  <h2 className="mt-2 text-2xl font-bold tracking-[-.035em] text-[#1a243f]">
                     {zh ? "相关案例" : "Related cases"}
                   </h2>
                 </div>
                 <Link
                   href={`/${locale}/cases`}
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-600"
+                  className="inline-flex items-center gap-1.5 text-sm font-bold text-[#8a7d51]"
                 >
                   {zh ? "全部案例" : "All cases"}
                   <ArrowRight size={15} />
@@ -115,11 +115,11 @@ export default async function GuidePage({
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {cases.map((item) => (
                   <Link key={item.id} href={`/${locale}/cases`}>
-                    <Card className="h-full p-5 transition hover:border-blue-200 hover:shadow-md">
+                    <Card className="h-full p-5 transition hover:border-[#d9d1b5] hover:shadow-md">
                       <Badge>
                         {zh ? item.type_name_zh : item.type_name_en}
                       </Badge>
-                      <h3 className="mt-3 font-bold leading-6 text-[#0f2747]">
+                      <h3 className="mt-3 font-bold leading-6 text-[#1a243f]">
                         {zh ? item.title_zh : item.title_en}
                       </h3>
                       <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">

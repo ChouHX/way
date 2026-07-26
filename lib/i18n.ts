@@ -3,7 +3,7 @@ export type Locale = (typeof locales)[number];
 
 export const dictionary = {
   zh: {
-    name: "永盛罚单/移民咨询中心",
+    name: "永盛咨询中心",
     shortName: "永盛咨询中心",
     nav: ["首页", "服务项目", "案例展示", "关于我们", "联系我们"],
     tagline: "专业 · 诚信 · 高效",
@@ -17,8 +17,8 @@ export const dictionary = {
     formSent: "已收到您的咨询，我们会尽快联系您。",
   },
   en: {
-    name: "Yongsheng Ticket & Immigration Consulting Center",
-    shortName: "Yongsheng Consulting",
+    name: "YONG SHENG CONSULTNG",
+    shortName: "YONG SHENG CONSULTNG",
     nav: ["Home", "Services", "Case Results", "About Us", "Contact"],
     tagline: "PROFESSIONAL · TRUSTED · RESPONSIVE",
     hero: "Practical guidance for ticket and immigration matters, protecting what matters to you.",

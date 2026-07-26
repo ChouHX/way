@@ -110,10 +110,10 @@ export function CasesBrowser({
     <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+          <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
             SELECTED MATTERS
           </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-[-.04em] text-[#0f2747]">
+          <h2 className="mt-2 text-3xl font-bold tracking-[-.04em] text-[#1a243f]">
             {zh ? "案例资料库" : "Case library"}
           </h2>
           <p className="mt-2 text-sm text-slate-500" aria-live="polite">
@@ -194,7 +194,7 @@ export function CasesBrowser({
                 retryRequest.current.replace,
               )
             }
-            className="mt-3 border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-[#0f2747]"
+            className="mt-3 border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-[#1a243f]"
           >
             {zh ? "重试" : "Retry"}
           </button>
@@ -206,7 +206,7 @@ export function CasesBrowser({
       >
         {loading && (
           <span className="inline-flex items-center gap-2 text-sm text-slate-500">
-            <LoaderCircle size={16} className="animate-spin text-blue-600" />
+            <LoaderCircle size={16} className="animate-spin text-[#8a7d51]" />
             {zh ? "正在加载更多案例…" : "Loading more cases…"}
           </span>
         )}

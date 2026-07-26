@@ -22,20 +22,20 @@ export default async function Home({
   const cases = await getFeaturedPublicCases();
   return (
     <>
-      <section className="bg-[#f8fafc] px-3 py-3 sm:px-5 sm:py-5">
-        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden bg-[#06182d] shadow-[0_24px_70px_rgba(2,16,34,.16)]">
+      <section className="bg-[#f4f4f4] px-3 py-3 sm:px-5 sm:py-5">
+        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden bg-[#1a243f] shadow-[0_24px_70px_rgba(9,11,18,.16)]">
           <img
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
             alt="New York city street"
             className="absolute inset-0 -z-20 h-full w-full scale-[1.01] object-cover object-center opacity-50"
           />
-          <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,16,31,.99)_2%,rgba(6,29,55,.95)_48%,rgba(7,34,64,.68)_78%,rgba(7,30,57,.5)_100%)]" />
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_28%,rgba(56,189,248,.2),transparent_30%)]" />
-          <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06182d] via-[#06182d]/75 to-transparent" />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(26,36,63,.99)_2%,rgba(26,36,63,.95)_48%,rgba(26,36,63,.72)_78%,rgba(26,36,63,.52)_100%)]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_28%,rgba(197,183,128,.18),transparent_30%)]" />
+          <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#1a243f] via-[#1a243f]/75 to-transparent" />
           <div className="mx-auto flex min-h-[31rem] max-w-6xl items-center px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:py-20">
             <div className="w-full max-w-[51rem]">
-              <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
-                <span className="h-1.5 w-1.5 bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
+              <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-[#d9d1b5] shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
+                <span className="h-1.5 w-1.5 bg-[#c5b780] shadow-[0_0_0_4px_rgba(197,183,128,.12)]" />
                 {t.tagline}
               </p>
               <TextEffect
@@ -71,7 +71,7 @@ export default async function Home({
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
+                  className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-[#8a7d51] px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(9,11,18,.3),inset_0_1px_0_rgba(255,255,255,.15)] hover:bg-[#9a8c5b]"
                   href={`/${locale}/contact`}
                 >
                   {t.consult}
@@ -94,10 +94,10 @@ export default async function Home({
       <section className="mx-auto max-w-6xl px-5 pb-20 pt-20 sm:pt-24">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+            <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
               OUR SERVICES
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
               {zh
                 ? "为您争取清晰、可行的解决方案"
                 : "Clear, practical paths forward"}
@@ -105,7 +105,7 @@ export default async function Home({
           </div>
           <Link
             href={`/${locale}/services`}
-            className="hidden text-sm font-bold text-blue-600 sm:block"
+            className="hidden text-sm font-bold text-[#8a7d51] sm:block"
           >
             {zh ? "全部服务" : "All services"} →
           </Link>
@@ -113,14 +113,14 @@ export default async function Home({
         <HomeServiceDialogs locale={locale} />
       </section>
       <HomeTicketGuide locale={locale} />
-      <section className="border-y border-slate-200 bg-white">
+      <section className="border-y border-[#dedede] bg-white">
         <div className="mx-auto max-w-6xl px-5 py-20">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold tracking-[.14em] text-blue-600">
+              <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
                 CASE RESULTS
               </p>
-              <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+              <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
                 {zh
                   ? "用结果，回应每一份托付。"
                   : "Results that reflect careful work."}
@@ -133,7 +133,7 @@ export default async function Home({
             </div>
             <Link
               href={`/${locale}/cases`}
-              className="hidden text-sm font-bold text-blue-600 sm:block"
+              className="hidden text-sm font-bold text-[#8a7d51] sm:block"
             >
               {zh ? "查看全部案例" : "View all cases"} →
             </Link>
@@ -147,13 +147,13 @@ export default async function Home({
           )}
         </div>
       </section>
-      <section className="bg-[#f4f8fc]">
+      <section className="bg-[#f4f4f4]">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[.88fr_1.12fr]">
           <div>
-            <p className="text-xs font-bold tracking-[.14em] text-blue-600">
-              WHY YONGSHENG
+            <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
+              WHY YONG SHENG
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#0f2747]">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
               {zh
                 ? "把复杂问题，交给值得信赖的团队。"
                 : "Bring complex matters to a team you can trust."}
@@ -165,7 +165,7 @@ export default async function Home({
             </p>
             <Link
               href={`/${locale}/about`}
-              className="pressable mt-7 inline-flex bg-[#0f2747] px-5 py-3 text-sm font-bold text-white hover:bg-[#173a68]"
+              className="pressable mt-7 inline-flex bg-[#1a243f] px-5 py-3 text-sm font-bold text-white hover:bg-[#273452]"
             >
               {zh ? "认识我们的团队" : "Meet our team"}
             </Link>

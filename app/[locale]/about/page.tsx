@@ -10,7 +10,7 @@ export default async function About({ params }: { params: Promise<{ locale: Loca
         "我们深知交通罚单不仅涉及罚款，更关系到驾照扣分、保险费用上涨、甚至驾照吊销等严重后果。因此，我们以专业的态度和丰富的经验，帮助每一位客户争取最佳结果，减免不必要的损失。",
       ]
     : [
-        "New York Ticket Resolution Center is a professional traffic-ticket service located in the heart of Flushing, serving New York's Chinese community. With extensive knowledge of New York traffic law and practical experience handling tickets, we are committed to providing every client with professional and efficient support.",
+        "YONG SHENG CONSULTNG is a professional consulting center located in the heart of Flushing, serving New York's Chinese community. With extensive knowledge of local procedures and practical experience handling ticket and immigration matters, we are committed to providing every client with professional and efficient support.",
         "We understand that a traffic ticket is not only about a fine. It can also affect driver-license points, raise insurance premiums, and in serious cases lead to license suspension. With a professional approach and substantial experience, we help every client pursue the best possible outcome and reduce unnecessary losses.",
       ];
   const checklist = zh
@@ -18,10 +18,10 @@ export default async function About({ params }: { params: Promise<{ locale: Loca
     : ["Familiar with common New York traffic-ticket procedures", "Focused on license points, insurance, and longer-term effects", "Clear, direct support for New York's Chinese community"];
 
   return <>
-    <PageHero locale={locale} kicker="ABOUT YONGSHENG" title={zh ? "专业的纽约交通罚单处理团队" : "A professional New York traffic-ticket team"} description={zh ? "位于法拉盛中心地带，专注为纽约华人社区提供专业、高效的交通罚单处理服务。" : "Located in the heart of Flushing, we provide professional, efficient traffic-ticket support for New York's Chinese community."} image="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1800&q=85" />
+    <PageHero locale={locale} kicker="ABOUT YONG SHENG" title={zh ? "专业的纽约交通罚单处理团队" : "A professional New York traffic-ticket team"} description={zh ? "位于法拉盛中心地带，专注为纽约华人社区提供专业、高效的交通罚单处理服务。" : "Located in the heart of Flushing, we provide professional, efficient traffic-ticket support for New York's Chinese community."} image="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1800&q=85" />
     <section className="mx-auto grid max-w-6xl gap-12 px-5 py-20 lg:grid-cols-2">
       <div><SectionHeading kicker="OUR APPROACH" title={zh ? "专业处理，让每一步更安心。" : "Professional handling for greater peace of mind."} /><div className="mt-5 grid gap-5 leading-8 text-slate-600">{copy.map(paragraph => <p key={paragraph}>{paragraph}</p>)}</div><Checklist items={checklist} /></div>
-      <div className="grid grid-cols-2 gap-3"><img className="col-span-2 h-64 w-full object-cover" src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1000&q=85" alt="team" /><div className="border-l-2 border-blue-600 bg-slate-50 p-5"><b className="block text-3xl tracking-[-.05em] text-[#0f2747]">10+</b><span className="mt-1 block text-sm text-slate-600">{zh ? "年经验" : "years of experience"}</span></div><div className="border-l-2 border-sky-400 bg-slate-50 p-5"><b className="block text-3xl tracking-[-.05em] text-[#0f2747]">NY</b><span className="mt-1 block text-sm text-slate-600">{zh ? "法拉盛社区服务" : "Flushing community service"}</span></div></div>
+      <div className="grid grid-cols-2 gap-3"><img className="col-span-2 h-64 w-full object-cover" src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1000&q=85" alt="team" /><div className="border-l-2 border-[#8a7d51] bg-slate-50 p-5"><b className="block text-3xl tracking-[-.05em] text-[#1a243f]">10+</b><span className="mt-1 block text-sm text-slate-600">{zh ? "年经验" : "years of experience"}</span></div><div className="border-l-2 border-[#c5b780] bg-slate-50 p-5"><b className="block text-3xl tracking-[-.05em] text-[#1a243f]">NY</b><span className="mt-1 block text-sm text-slate-600">{zh ? "法拉盛社区服务" : "Flushing community service"}</span></div></div>
     </section>
     <ConsultationCallout locale={locale} />
   </>;
