@@ -11,13 +11,23 @@ export async function GET(request: NextRequest) {
     await requireAdminSession(request);
     const { DB } = await getWorkerEnv();
     if (!DB) return json({ error: "D1 binding is unavailable" }, { status: 503 });
-    const resource = new URL(request.url).searchParams.get("resource") ?? "dashboard";
+    const url = new URL(request.url);
+    const resource = url.searchParams.get("resource") ?? "dashboard";
     if (resource === "site") { const { results } = await DB.prepare("SELECT key,value FROM site_settings").all<{key:string;value:string}>(); return json({ settings: Object.fromEntries(results.map(x => [x.key, x.value])) }); }
     if (resource === "categories") { const { results } = await DB.prepare("SELECT * FROM case_categories ORDER BY sort_order,created_at").all(); return json({ categories: results }); }
     if (resource === "types") { const { results } = await DB.prepare("SELECT t.*,c.name_zh category_name_zh,c.name_en category_name_en FROM case_types t JOIN case_categories c ON c.id=t.category_id ORDER BY c.sort_order,t.sort_order,t.name_zh").all(); return json({ types: results }); }
     if (resource === "regions") { const { results } = await DB.prepare("SELECT * FROM case_regions ORDER BY sort_order,name_zh").all(); return json({ regions: results }); }
     if (resource === "guides") { const { results } = await DB.prepare("SELECT g.*,c.name_zh category_name_zh,t.name_zh type_name_zh FROM guides g LEFT JOIN case_categories c ON c.id=g.category_id LEFT JOIN case_types t ON t.id=g.type_id ORDER BY g.updated_at DESC").all(); return json({ guides: results }); }
-    if (resource === "cases") { const { results } = await DB.prepare("SELECT s.*,c.name_zh category_name_zh,c.name_en category_name_en,t.name_zh type_name_zh,t.name_en type_name_en,r.name_zh region_name_zh,r.name_en region_name_en,g.title_zh guide_title_zh FROM case_studies s LEFT JOIN case_categories c ON c.id=s.category_id LEFT JOIN case_types t ON t.id=s.type_id LEFT JOIN case_regions r ON r.id=s.region_id LEFT JOIN guides g ON g.id=s.guide_id ORDER BY s.created_at DESC").all(); return json({ cases: results }); }
+    if (resource === "cases") {
+      const requestedPage = Math.max(1, Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1);
+      const pageSize = Math.min(50, Math.max(10, Number.parseInt(url.searchParams.get("pageSize") ?? "20", 10) || 20));
+      const count = await DB.prepare("SELECT COUNT(*) total FROM case_studies").all<{total:number}>();
+      const total = Number(count.results[0]?.total ?? 0);
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
+      const page = Math.min(requestedPage, totalPages);
+      const { results } = await DB.prepare("SELECT s.*,c.name_zh category_name_zh,c.name_en category_name_en,t.name_zh type_name_zh,t.name_en type_name_en,r.name_zh region_name_zh,r.name_en region_name_en,g.title_zh guide_title_zh FROM case_studies s LEFT JOIN case_categories c ON c.id=s.category_id LEFT JOIN case_types t ON t.id=s.type_id LEFT JOIN case_regions r ON r.id=s.region_id LEFT JOIN guides g ON g.id=s.guide_id ORDER BY COALESCE(s.updated_at,s.created_at) DESC,s.created_at DESC LIMIT ? OFFSET ?").bind(pageSize,(page-1)*pageSize).all();
+      return json({ cases: results, pagination: { page, pageSize, total, totalPages } });
+    }
     const [categories, types, regions, guides, cases] = await Promise.all(["case_categories","case_types","case_regions","guides","case_studies"].map(table => DB.prepare(`SELECT COUNT(*) total FROM ${table}`).all()));
     return json({ categories: categories.results[0], types: types.results[0], regions: regions.results[0], guides: guides.results[0], cases: cases.results[0] });
   } catch (error) { if (error instanceof Response) return error; console.error(error); return json({ error: error instanceof Error ? error.message : "Unable to load administration data" }, { status: 500 }); }
