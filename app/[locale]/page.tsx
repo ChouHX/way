@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { ConsultationCallout } from "@/components/shared";
 import { TextEffect } from "@/components/core/text-effect";
@@ -19,13 +19,6 @@ export default async function Home({
   const heroLines = zh
     ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航"
     : "Practical guidance for ticket and\nimmigration matters that protect you.";
-  const heroHighlights = zh
-    ? ["梳理事实、记录与关键期限", "说明常见风险与处理重点", "中英文沟通并持续跟进"]
-    : [
-        "Organize facts, records, and deadlines",
-        "Clarify common risks and priorities",
-        "Bilingual communication and follow-up",
-      ];
   const cases = await getFeaturedPublicCases();
   return (
     <>
@@ -39,7 +32,7 @@ export default async function Home({
           <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,16,31,.99)_2%,rgba(6,29,55,.95)_48%,rgba(7,34,64,.68)_78%,rgba(7,30,57,.5)_100%)]" />
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_28%,rgba(56,189,248,.2),transparent_30%)]" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06182d] via-[#06182d]/75 to-transparent" />
-          <div className="mx-auto grid min-h-[31rem] max-w-6xl items-center gap-12 px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:grid-cols-[minmax(0,1fr)_20rem] lg:py-20">
+          <div className="mx-auto flex min-h-[31rem] max-w-6xl items-center px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:py-20">
             <div className="w-full max-w-[51rem]">
               <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
                 <span className="h-1.5 w-1.5 bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
@@ -92,28 +85,6 @@ export default async function Home({
                 </Link>
               </div>
             </div>
-            <aside className="hidden self-end border border-white/15 bg-white/[.1] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-xl lg:block">
-              <p className="text-[10px] font-bold tracking-[.15em] text-sky-200">
-                {zh ? "清晰推进每一步" : "A CLEAR WAY FORWARD"}
-              </p>
-              <h2 className="mt-2 text-lg font-bold leading-6 tracking-[-.025em]">
-                {zh ? "先厘清情况，再稳妥行动。" : "Clarity first. Then action."}
-              </h2>
-              <div className="mt-5 grid gap-3.5">
-                {heroHighlights.map((item) => (
-                  <p
-                    key={item}
-                    className="flex items-start gap-2.5 text-xs font-medium leading-5 text-slate-200"
-                  >
-                    <CheckCircle2
-                      size={15}
-                      className="mt-0.5 shrink-0 text-sky-300"
-                    />
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </aside>
           </div>
           <HeroStats locale={locale} />
           <div className="h-7 sm:h-9" />
