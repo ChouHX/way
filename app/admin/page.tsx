@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, InputHTMLAttributes, TextareaHTMLAttributes, useEffect, useState } from "react";
-import { BriefcaseBusiness, Eye, FolderTree, Pencil, Plus, Save, Settings2, ShieldAlert, ShieldCheck, Trash2, X } from "lucide-react";
+import { BriefcaseBusiness, Eye, FolderTree, ImagePlus, Pencil, Plus, Save, Settings2, ShieldAlert, ShieldCheck, Trash2, X } from "lucide-react";
 import { Button, Card, Select } from "@/components/ui";
 
 type Category = { id: string; slug: string; name_zh: string; name_en: string; sort_order: number };
@@ -10,6 +10,22 @@ type CaseStudy = { id: string; category_id?: string | null; title_zh: string; ti
 type CaseValues = { id?: string; categoryId: string; titleZh: string; titleEn: string; summaryZh: string; summaryEn: string; contentZh: string; contentEn: string; imageUrl: string; published: boolean };
 type Section = "site" | "cases" | "categories";
 type AuthState = "loading" | "ready" | "signed-out" | "unavailable";
+const maxImageBytes = 450 * 1024;
+
+async function compressCaseImage(file: File) {
+  if (!file.type.startsWith("image/")) throw new Error("请选择图片文件。");
+  if (file.size > 10 * 1024 * 1024) throw new Error("原始图片不能超过 10 MB。");
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale)); canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height); bitmap.close();
+  for (const quality of [0.78, 0.68, 0.58, 0.48]) {
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/webp", quality));
+    if (blob && blob.size <= maxImageBytes) return await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = () => reject(new Error("读取图片失败。")); reader.readAsDataURL(blob); });
+  }
+  throw new Error("图片压缩后仍超过 450 KB，请选择尺寸更小的图片。");
+}
 
 async function api(resource: string, init?: RequestInit) {
   const response = await fetch(`/api/admin?resource=${resource}`, { ...init, headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) } });
@@ -87,5 +103,17 @@ function CaseDialog({ dialog, categories, onClose, saveCase }: { dialog: { mode:
   return <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 px-4 py-5" role="dialog" aria-modal="true" aria-label={preview ? "案例预览" : "案例编辑器"}><div className="modal-pop relative my-auto w-full max-w-2xl rounded-xl border border-white/70 bg-white shadow-[0_24px_60px_rgba(15,23,42,.24)]"><button type="button" aria-label="关闭对话框" onClick={onClose} className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-md bg-white/90 text-slate-500 shadow-sm transition hover:text-[#0f2747] active:scale-[.96]"><X size={16}/></button>{preview && item ? <div><img src={item.image_url || "https://images.unsplash.com/photo-1528747008803-d74e2f7e1a79?auto=format&fit=crop&w=1200&q=85"} alt={item.title_zh} className="h-48 w-full rounded-t-xl object-cover"/><div className="p-5"><span className="text-[10px] font-bold text-blue-600">{item.category_name_zh ?? "未分类"}</span><h2 className="mt-2 text-xl font-bold tracking-[-.025em] text-[#0f2747]">{item.title_zh}</h2><p className="mt-0.5 text-xs text-slate-500">{item.title_en}</p><p className="mt-4 text-sm leading-6 text-slate-700">{item.summary_zh}</p><p className="mt-3 text-xs leading-5 text-slate-500">{item.content_zh}</p></div></div> : <form className="p-5" onSubmit={submit}><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">{item ? "EDIT CASE" : "NEW CASE"}</p><h2 className="mt-1 text-xl font-bold tracking-[-.025em] text-[#0f2747]">{item ? "编辑案例" : "新增案例"}</h2><div className="mt-4 grid gap-3 md:grid-cols-2"><Input name="titleZh" label="案例中文标题" defaultValue={item?.title_zh} required/><Input name="titleEn" label="Case title (English)" defaultValue={item?.title_en} required/><label className="grid gap-1.5 text-xs font-bold">分类<Select name="categoryId" className="py-2.5 text-sm" defaultValue={item?.category_id ?? ""}><option value="">未分类</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name_zh} / {category.name_en}</option>)}</Select></label><label className="grid gap-1.5 text-xs font-bold">状态<Select name="published" className="py-2.5 text-sm" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label><Input name="imageUrl" label="图片 URL" defaultValue={item?.image_url}/><div className="hidden md:block"/><TextArea name="summaryZh" label="中文摘要" defaultValue={item?.summary_zh} required/><TextArea name="summaryEn" label="English summary" defaultValue={item?.summary_en} required/><TextArea name="contentZh" label="中文正文" defaultValue={item?.content_zh}/><TextArea name="contentEn" label="English content" defaultValue={item?.content_en}/></div>{saveError && <p role="alert" className="mt-3 border-l-2 border-red-500 bg-red-50 px-3 py-2 text-xs text-red-700">{saveError}</p>}<div className="mt-5 flex justify-end gap-2"><button type="button" onClick={onClose} className="rounded-md border border-slate-300 px-3 py-2 text-xs font-bold text-slate-600 active:scale-[.98]">取消</button><Button className="px-4 py-2 text-xs" type="submit"><Save size={15}/>保存案例</Button></div></form>}</div></div>;
 }
 function PanelHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) { return <div><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">{eyebrow}</p><h2 className="mt-1 text-xl font-bold tracking-[-.025em] text-[#0f2747]">{title}</h2><p className="mt-1 text-xs text-slate-500">{description}</p></div>; }
-function Input({ label, value, onChange, ...props }: { label: string; value?: string; onChange?: (value: string) => void } & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) { return <label className="grid gap-1.5 text-xs font-bold"><span>{label}</span><input {...props} value={value} onChange={event => onChange?.(event.target.value)} className="rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"/></label>; }
+function Input({ label, value, onChange, ...props }: { label: string; value?: string; onChange?: (value: string) => void } & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">) { if (props.name === "imageUrl") return <CaseImageField initialValue={String(props.defaultValue ?? "")}/>; return <label className="grid gap-1.5 text-xs font-bold"><span>{label}</span><input {...props} value={value} onChange={event => onChange?.(event.target.value)} className="rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"/></label>; }
+function CaseImageField({ initialValue }: { initialValue: string }) {
+  const [image, setImage] = useState(initialValue);
+  const [status, setStatus] = useState("支持 JPG、PNG、WebP；自动压缩到 450 KB 以内。");
+  const choose = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setStatus("正在压缩图片…");
+    try { const compressed = await compressCaseImage(file); setImage(compressed); setStatus(`已压缩至 ${Math.ceil(compressed.length * 0.75 / 1024)} KB`); }
+    catch (error) { setStatus(error instanceof Error ? error.message : "无法处理图片。"); event.target.value = ""; }
+  };
+  return <div className="grid gap-1.5 text-xs font-bold"><span>案例图片</span><input type="hidden" name="imageUrl" value={image}/><div className="flex min-h-[82px] items-center gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50/70 p-2.5">{image ? <img src={image} alt="案例图片预览" className="h-16 w-24 rounded-md object-cover"/> : <span className="grid h-16 w-24 place-items-center rounded-md bg-white text-slate-400"><ImagePlus size={20}/></span>}<div className="min-w-0 flex-1"><label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-white px-3 py-2 text-xs font-bold text-blue-700 shadow-sm ring-1 ring-slate-200 transition hover:bg-blue-50 active:scale-[.98]"><ImagePlus size={14}/>{image ? "替换图片" : "选择图片"}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={event => void choose(event)}/></label>{image && <button type="button" onClick={() => { setImage(""); setStatus("图片已移除。"); }} className="ml-2 px-2 py-2 text-xs font-bold text-slate-500 hover:text-red-600">移除</button>}<p className="mt-1.5 text-[10px] font-normal leading-4 text-slate-500">{status}</p></div></div></div>;
+}
 function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) { const { label, ...input } = props; return <label className="grid gap-1.5 text-xs font-bold"><span>{label}</span><textarea {...input} rows={3} className="resize-y rounded-md border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"/></label>; }

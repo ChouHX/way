@@ -6,6 +6,13 @@ const categorySlug = (name: string) => {
   const base = name.toLowerCase().trim().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   return `${base || "category"}-${crypto.randomUUID().slice(0, 8)}`;
 };
+const imageDataLimit = 450 * 1024;
+function validCaseImage(value: string) {
+  if (!value) return true;
+  if (!value.startsWith("data:")) return /^https:\/\//i.test(value);
+  if (!/^data:image\/(webp|jpeg|png);base64,/i.test(value)) return false;
+  return Math.ceil((value.split(",", 2)[1]?.length ?? 0) * 0.75) <= imageDataLimit;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -55,10 +62,12 @@ export async function POST(request: NextRequest) {
       return json({ ok: true });
     }
     if (body.action === "case") {
+      if (!validCaseImage(String(body.imageUrl ?? ""))) return json({ error: "图片格式无效或压缩后超过 450 KB" }, { status: 413 });
       const id = crypto.randomUUID(); await env.DB.prepare("INSERT INTO case_studies (id, category_id, title_zh, title_en, summary_zh, summary_en, content_zh, content_en, image_url, published) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(id, body.categoryId || null, String(body.titleZh), String(body.titleEn), String(body.summaryZh), String(body.summaryEn), String(body.contentZh ?? ""), String(body.contentEn ?? ""), String(body.imageUrl ?? ""), body.published === false ? 0 : 1).run(); return json({ ok: true, id });
     }
     if (body.action === "update-case") {
       if (!body.id) return json({ error: "Case ID is required" }, { status: 400 });
+      if (!validCaseImage(String(body.imageUrl ?? ""))) return json({ error: "图片格式无效或压缩后超过 450 KB" }, { status: 413 });
       await env.DB.prepare("UPDATE case_studies SET category_id = ?, title_zh = ?, title_en = ?, summary_zh = ?, summary_en = ?, content_zh = ?, content_en = ?, image_url = ?, published = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(body.categoryId || null, String(body.titleZh), String(body.titleEn), String(body.summaryZh), String(body.summaryEn), String(body.contentZh ?? ""), String(body.contentEn ?? ""), String(body.imageUrl ?? ""), body.published === false ? 0 : 1, String(body.id)).run();
       return json({ ok: true, id: body.id });
     }
