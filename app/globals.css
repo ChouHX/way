@@ -56,10 +56,12 @@ h3 {
   font-family: var(--font-heading);
 }
 .site-locale:lang(en) {
+  font-family: Georgia, "Times New Roman", serif;
   --font-body: Georgia, "Times New Roman", serif;
   --font-heading: Georgia, "Times New Roman", serif;
 }
 .site-locale:lang(zh-CN) {
+  font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   --font-body: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   --font-heading: "SimSun", "宋体", serif;
 }

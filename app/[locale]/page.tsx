@@ -22,7 +22,7 @@ export default async function Home({
   const cases = await getFeaturedPublicCases();
   return (
     <>
-      <section className="bg-[#f4f4f4] px-3 py-3 sm:px-5 sm:py-5">
+      <section className="bg-[#f4f4f4] px-0 py-0 sm:px-5 sm:py-5">
         <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden bg-[#1a243f] shadow-[0_24px_70px_rgba(9,11,18,.16)]">
           <img
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
