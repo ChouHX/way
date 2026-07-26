@@ -30,6 +30,15 @@ pnpm cf:preview
 pnpm d1:remote:migrate
 ```
 
+首次升级类型、地区和知识库结构时，依次执行迁移与数据导入：
+
+```bash
+pnpm exec wrangler d1 execute ticket-consulting --remote --file=./migrations/0002_taxonomy_guides.sql
+pnpm data:remote
+```
+
+`pnpm data:remote` 会由两份 JSON 重新生成幂等 SQL；重复执行只会更新已有来源数据，不会创建重复案例。
+
 如需从本地预览直接读写远端绑定：
 
 ```bash

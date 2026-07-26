@@ -39,4 +39,9 @@ code, kbd, pre, samp { font-family: inherit; }
   .case-card:hover .case-card-image { transform: scale(1.015); }
   .service-dialog-trigger:hover { background-color: #f8fafc; }
 }
+
+.guide-content { color:#475569; font-size:15px; line-height:1.9; }
+.guide-content h2 { margin:2rem 0 .75rem; color:#0f2747; font-size:1.25rem; line-height:1.4; font-weight:750; letter-spacing:-.025em; }
+.guide-content p { margin:.8rem 0; }
+.guide-content .guide-list-item { margin:.35rem 0; border-left:2px solid #bfdbfe; padding-left:.9rem; }
 @media (prefers-reduced-transparency: reduce) { header { background: #fff !important; backdrop-filter: none !important; } }

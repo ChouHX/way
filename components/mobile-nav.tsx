@@ -7,7 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 
-const paths = ["", "/services", "/cases", "/about", "/contact"];
+const paths = ["", "/services", "/cases", "/guides", "/about", "/contact"];
 
 export function MobileNav({ locale }: { locale: Locale }) {
   const [open, setOpen] = useState(false);
