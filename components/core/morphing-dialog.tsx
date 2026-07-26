@@ -49,20 +49,32 @@ export function MorphingDialog({
 export function MorphingDialogTrigger({
   children,
   className = "",
+  wrapperClassName = "",
   style,
   onClick,
+  disabled = false,
+  tabIndex,
+  ariaHidden,
 }: {
   children: ReactNode;
   className?: string;
+  wrapperClassName?: string;
   style?: CSSProperties;
   onClick?: () => void;
+  disabled?: boolean;
+  tabIndex?: number;
+  ariaHidden?: boolean;
 }) {
   const { id, setOpen, transition } = useDialog();
   return (
-    <div className="relative">
+    <div className={`relative ${wrapperClassName}`}>
       <button
         type="button"
+        disabled={disabled}
+        tabIndex={tabIndex}
+        aria-hidden={ariaHidden || undefined}
         onClick={() => {
+          if (disabled) return;
           onClick?.();
           setOpen(true);
         }}

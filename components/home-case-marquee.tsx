@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
+import { useState, type CSSProperties } from "react";
+import { Pause, Play } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import type { PublicCase } from "@/lib/content";
-import { Card } from "@/components/ui";
-
-const fallback = "/logo-transparent.png";
+import { CaseCard } from "@/components/case-card";
 
 export function HomeCaseMarquee({
   locale,
@@ -15,54 +14,70 @@ export function HomeCaseMarquee({
   cases: PublicCase[];
 }) {
   const zh = locale === "zh";
-  const loop = cases.length > 1 ? [...cases, ...cases] : cases;
+  const [paused, setPaused] = useState(false);
+  const canLoop = cases.length > 1;
+  const loop = canLoop ? [...cases, ...cases] : cases;
+  const duration = Math.max(52, cases.length * 5);
 
   return (
-    <div className="home-case-marquee mt-9 overflow-hidden py-1">
-      <div className="home-case-marquee-track flex w-max gap-4">
-        {loop.map((item, index) => {
-          const title = zh ? item.title_zh : item.title_en;
-          const category = zh ? item.category_name_zh : item.category_name_en;
-          const type = zh ? item.type_name_zh : item.type_name_en;
-          const summary = zh ? item.summary_zh : item.summary_en;
-          return (
-            <Link
-              href={`/${locale}/cases`}
-              key={`${item.id}-${index}`}
-              aria-hidden={index >= cases.length || undefined}
-              tabIndex={index >= cases.length ? -1 : undefined}
-              className="case-card group w-[18rem] shrink-0 sm:w-[20rem] lg:w-[22rem]"
-            >
-              <Card className="h-full overflow-hidden rounded-2xl">
-                <div className="relative overflow-hidden bg-slate-100">
-                  <img
-                    src={item.image_url || fallback}
-                    onError={(event) => {
-                      event.currentTarget.src = fallback;
-                    }}
-                    loading="lazy"
-                    alt={title}
-                    className="case-card-image h-40 w-full object-cover"
-                  />
-                  <span className="absolute left-3 top-3 rounded-full border border-white/60 bg-white/90 px-2.5 py-1 text-[10px] font-bold text-[#0f2747] shadow-sm backdrop-blur-md">
-                    {category || type}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <p className="text-[10px] font-bold tracking-[.1em] text-blue-600">
-                    {type || category}
-                  </p>
-                  <h3 className="mt-2 line-clamp-2 min-h-12 font-bold leading-6 text-[#0f2747]">
-                    {title}
-                  </h3>
-                  <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
-                    {summary}
-                  </p>
-                </div>
-              </Card>
-            </Link>
-          );
-        })}
+    <div className="mt-8">
+      {canLoop && (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setPaused((value) => !value)}
+            aria-pressed={paused}
+            aria-label={
+              paused
+                ? zh
+                  ? "继续滚动案例"
+                  : "Resume case carousel"
+                : zh
+                  ? "暂停滚动案例"
+                  : "Pause case carousel"
+            }
+            title={
+              paused
+                ? zh
+                  ? "继续滚动"
+                  : "Resume scrolling"
+                : zh
+                  ? "暂停滚动"
+                  : "Pause scrolling"
+            }
+            className="home-case-marquee-control pressable grid h-9 w-9 place-items-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm hover:border-blue-200 hover:text-blue-600"
+          >
+            {paused ? (
+              <Play size={14} fill="currentColor" />
+            ) : (
+              <Pause size={14} />
+            )}
+          </button>
+        </div>
+      )}
+      <div
+        className={`home-case-marquee overflow-hidden py-1 ${paused || !canLoop ? "is-paused" : ""}`}
+      >
+        <div
+          className="home-case-marquee-track flex w-max items-stretch gap-5"
+          style={{ "--marquee-duration": `${duration}s` } as CSSProperties}
+        >
+          {loop.map((item, index) => {
+            const clone = index >= cases.length;
+            return (
+              <div
+                key={`${item.id}-${index}`}
+                className={`w-[19rem] shrink-0 sm:w-[21rem] lg:w-[23rem] ${clone ? "home-case-marquee-clone" : ""}`}
+              >
+                <CaseCard
+                  item={item}
+                  locale={locale}
+                  interactive={!clone}
+                />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

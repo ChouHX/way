@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { ConsultationCallout } from "@/components/shared";
 import { TextEffect } from "@/components/core/text-effect";
@@ -19,71 +19,106 @@ export default async function Home({
   const heroLines = zh
     ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航"
     : "Practical guidance for ticket and\nimmigration matters that protect you.";
+  const heroHighlights = zh
+    ? ["梳理事实、记录与关键期限", "说明常见风险与处理重点", "中英文沟通并持续跟进"]
+    : [
+        "Organize facts, records, and deadlines",
+        "Clarify common risks and priorities",
+        "Bilingual communication and follow-up",
+      ];
   const cases = await getFeaturedPublicCases();
   return (
     <>
-      <section className="relative isolate overflow-x-clip bg-[#06182d] pb-8 sm:pb-10">
-        <img
-          src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
-          alt="New York city street"
-          className="absolute inset-0 -z-20 h-full w-full scale-[1.01] object-cover object-center opacity-50"
-        />
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,16,31,.99)_2%,rgba(6,29,55,.94)_48%,rgba(7,34,64,.56)_78%,rgba(7,30,57,.4)_100%)]" />
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_30%,rgba(56,189,248,.2),transparent_28%)]" />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-48 bg-gradient-to-t from-[#06182d] via-[#06182d]/65 to-transparent" />
-        <div className="mx-auto flex min-h-[31rem] max-w-6xl items-center px-5 pb-16 pt-16 sm:pb-20 sm:pt-20 md:min-h-[35rem] md:pb-24 md:pt-20">
-          <div className="w-full max-w-[52rem]">
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
-              <span className="h-1.5 w-1.5 rounded-full bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
-              {t.tagline}
-            </p>
-            <TextEffect
-              per="line"
-              as="h1"
-              className="mt-6 max-w-[52rem] text-[clamp(2.55rem,5.8vw,4.65rem)] font-bold leading-[1.03] tracking-[-.05em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,.2)]"
-              segmentWrapperClassName="block overflow-hidden"
-              variants={{
-                container: {
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: { staggerChildren: 0.14 },
+      <section className="bg-[#f8fafc] px-3 py-3 sm:px-5 sm:py-5">
+        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden rounded-2xl bg-[#06182d] shadow-[0_24px_70px_rgba(2,16,34,.16)]">
+          <img
+            src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
+            alt="New York city street"
+            className="absolute inset-0 -z-20 h-full w-full scale-[1.01] object-cover object-center opacity-50"
+          />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(3,16,31,.99)_2%,rgba(6,29,55,.95)_48%,rgba(7,34,64,.68)_78%,rgba(7,30,57,.5)_100%)]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_28%,rgba(56,189,248,.2),transparent_30%)]" />
+          <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06182d] via-[#06182d]/75 to-transparent" />
+          <div className="mx-auto grid min-h-[31rem] max-w-6xl items-center gap-12 px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:grid-cols-[minmax(0,1fr)_20rem] lg:py-20">
+            <div className="w-full max-w-[51rem]">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
+                {t.tagline}
+              </p>
+              <TextEffect
+                per="line"
+                as="h1"
+                className="mt-6 max-w-[51rem] text-[clamp(2.5rem,5.4vw,4.5rem)] font-bold leading-[1.035] tracking-[-.052em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,.2)]"
+                segmentWrapperClassName="block overflow-hidden"
+                variants={{
+                  container: {
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.14 },
+                    },
                   },
-                },
-                item: {
-                  hidden: { opacity: 0, y: 18 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { duration: 0.42, ease: [0.23, 1, 0.32, 1] },
+                  item: {
+                    hidden: { opacity: 0, y: 18 },
+                    visible: {
+                      opacity: 1,
+                      y: 0,
+                      transition: {
+                        duration: 0.42,
+                        ease: [0.23, 1, 0.32, 1],
+                      },
+                    },
                   },
-                },
-              }}
-            >
-              {heroLines}
-            </TextEffect>
-            <p className="mt-6 max-w-[40rem] text-base font-medium leading-7 text-slate-200/90 sm:text-[1.08rem] sm:leading-8">
-              {t.heroSub}
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                className="pressable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
-                href={`/${locale}/contact`}
+                }}
               >
-                {t.consult}
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                className="pressable inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[.09] px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-xl hover:bg-white/[.14]"
-                href={`/${locale}/services`}
-              >
-                {t.services}
-              </Link>
+                {heroLines}
+              </TextEffect>
+              <p className="mt-6 max-w-[40rem] text-base font-medium leading-7 text-slate-200/90 sm:text-[1.08rem] sm:leading-8">
+                {t.heroSub}
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  className="pressable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
+                  href={`/${locale}/contact`}
+                >
+                  {t.consult}
+                  <ArrowRight size={16} />
+                </Link>
+                <Link
+                  className="pressable inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[.09] px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-xl hover:bg-white/[.14]"
+                  href={`/${locale}/services`}
+                >
+                  {t.services}
+                </Link>
+              </div>
             </div>
+            <aside className="hidden self-end rounded-2xl border border-white/15 bg-white/[.1] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-xl lg:block">
+              <p className="text-[10px] font-bold tracking-[.15em] text-sky-200">
+                {zh ? "清晰推进每一步" : "A CLEAR WAY FORWARD"}
+              </p>
+              <h2 className="mt-2 text-lg font-bold leading-6 tracking-[-.025em]">
+                {zh ? "先厘清情况，再稳妥行动。" : "Clarity first. Then action."}
+              </h2>
+              <div className="mt-5 grid gap-3.5">
+                {heroHighlights.map((item) => (
+                  <p
+                    key={item}
+                    className="flex items-start gap-2.5 text-xs font-medium leading-5 text-slate-200"
+                  >
+                    <CheckCircle2
+                      size={15}
+                      className="mt-0.5 shrink-0 text-sky-300"
+                    />
+                    {item}
+                  </p>
+                ))}
+              </div>
+            </aside>
           </div>
+          <HeroStats locale={locale} />
+          <div className="h-7 sm:h-9" />
+          <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </div>
-        <HeroStats locale={locale} />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </section>
       <section className="mx-auto max-w-6xl px-5 pb-20 pt-20 sm:pt-24">
         <div className="flex items-end justify-between gap-4">

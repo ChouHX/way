@@ -176,7 +176,7 @@ samp {
 }
 @keyframes home-case-marquee {
   to {
-    transform: translateX(calc(-50% - 0.5rem));
+    transform: translateX(calc(-50% - 0.625rem));
   }
 }
 .page-enter {
@@ -231,11 +231,12 @@ samp {
   );
 }
 .home-case-marquee-track {
-  animation: home-case-marquee 58s linear infinite;
+  animation: home-case-marquee var(--marquee-duration, 58s) linear infinite;
   will-change: transform;
 }
 .home-case-marquee:hover .home-case-marquee-track,
-.home-case-marquee:focus-within .home-case-marquee-track {
+.home-case-marquee:focus-within .home-case-marquee-track,
+.home-case-marquee.is-paused .home-case-marquee-track {
   animation-play-state: paused;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -256,6 +257,10 @@ samp {
   .home-case-marquee-track {
     animation: none;
   }
+  .home-case-marquee-clone,
+  .home-case-marquee-control {
+    display: none;
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .nav-link:hover::after {
@@ -264,7 +269,7 @@ samp {
   }
   .case-card:hover {
     border-color: #bfdbfe;
-    box-shadow: 0 4px 14px rgba(15, 39, 71, 0.1);
+    box-shadow: 0 10px 28px rgba(15, 39, 71, 0.1);
   }
   .case-card:hover .case-card-image {
     transform: scale(1.015);
