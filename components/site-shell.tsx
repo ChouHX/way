@@ -20,7 +20,7 @@ export function Brand({ locale }: { locale: Locale }) {
       <img
         src="/logo-transparent.png"
         alt="YONG SHENG CONSULTNG logo"
-        className="h-10 w-12 object-contain brightness-0 invert"
+        className="h-10 w-12 object-contain"
       />
       <span className="min-w-0 leading-none">
         <b className="block truncate text-[15px] tracking-[-.025em] text-white">
@@ -257,7 +257,7 @@ function Footer({ locale }: { locale: Locale }) {
             <iframe
               title="YONG SHENG CONSULTNG location"
               src="https://www.google.com/maps?q=123%20Main%20Street%2C%20New%20York%2C%20NY%2010001&z=14&output=embed"
-              className="h-36 w-full border-0 grayscale"
+              className="h-36 w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
