@@ -52,7 +52,7 @@ export function CaseCard({
         tabIndex={interactive ? undefined : -1}
         ariaHidden={!interactive}
         wrapperClassName="h-full"
-        className="case-card group flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm disabled:cursor-default"
+        className="case-card group flex h-full w-full flex-col overflow-hidden border border-slate-200 bg-white text-left shadow-sm disabled:cursor-default"
       >
         <div className="relative shrink-0 overflow-hidden bg-slate-100">
           <MorphingDialogImage
@@ -86,7 +86,7 @@ export function CaseCard({
       </MorphingDialogTrigger>
       {interactive && (
         <MorphingDialogContainer>
-          <MorphingDialogContent className="relative max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto overflow-x-hidden rounded-2xl bg-white shadow-2xl">
+          <MorphingDialogContent className="relative max-h-[calc(100dvh-2rem)] w-full max-w-xl overflow-y-auto overflow-x-hidden bg-white shadow-2xl">
             <MorphingDialogImage
               src={item.image_url || caseImageFallback}
               onError={imageError}
@@ -132,10 +132,10 @@ export function CaseCard({
               {item.guide_slug && guideTitle && (
                 <Link
                   href={`/${locale}/guides/${item.guide_slug}`}
-                  className="group mt-6 block rounded-xl border border-blue-100 bg-blue-50/70 p-4 transition hover:border-blue-200 hover:bg-blue-50"
+                  className="group mt-6 block border border-blue-100 bg-blue-50/70 p-4 transition hover:border-blue-200 hover:bg-blue-50"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white text-blue-700 shadow-sm">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center bg-white text-blue-700 shadow-sm">
                       <BookOpen size={15} />
                     </span>
                     <span className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function CaseCard({
                 </Link>
               )}
             </div>
-            <MorphingDialogClose className="rounded-full" />
+            <MorphingDialogClose />
           </MorphingDialogContent>
         </MorphingDialogContainer>
       )}

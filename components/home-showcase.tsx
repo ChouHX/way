@@ -91,7 +91,7 @@ export function HeroStats({ locale }: { locale: Locale }) {
 
   return (
     <div className="hero-stats relative z-10 mx-auto w-full max-w-6xl px-5">
-      <div className="overflow-hidden rounded-2xl border border-white/55 bg-white/[.84] shadow-[0_24px_65px_rgba(2,16,34,.22),inset_0_1px_0_rgba(255,255,255,.9)] backdrop-blur-2xl backdrop-saturate-150">
+      <div className="overflow-hidden border border-white/55 bg-white/[.84] shadow-[0_24px_65px_rgba(2,16,34,.22),inset_0_1px_0_rgba(255,255,255,.9)] backdrop-blur-2xl backdrop-saturate-150">
         <div className="grid grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
@@ -101,7 +101,7 @@ export function HeroStats({ locale }: { locale: Locale }) {
                 className={`group relative min-w-0 px-4 py-4 sm:px-6 sm:py-5 ${index % 2 ? "border-l border-slate-200/75" : ""} ${index > 1 ? "border-t border-slate-200/75 lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-slate-200/75" : ""}`}
               >
                 <div className="flex items-start gap-3.5">
-                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-blue-100/80 bg-blue-50/90 text-blue-700 shadow-[inset_0_1px_0_rgba(255,255,255,.9)]">
+                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center border border-blue-100/80 bg-blue-50/90 text-blue-700 shadow-[inset_0_1px_0_rgba(255,255,255,.9)]">
                     <Icon size={17} strokeWidth={1.9} />
                   </span>
                   <div className="min-w-0">
@@ -215,7 +215,7 @@ export function HomeServiceDialogs({ locale }: { locale: Locale }) {
       viewOptions={{ margin: "0px 0px -160px 0px" }}
       transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
     >
-      <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-slate-200 bg-slate-200 md:grid-cols-2">
+      <div className="mt-10 grid gap-px overflow-hidden border border-slate-200 bg-slate-200 md:grid-cols-2">
         {services.map((service) => {
           const Icon = service.icon;
           const title = zh ? service.zh : service.en;

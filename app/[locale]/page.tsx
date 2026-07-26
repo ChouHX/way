@@ -30,7 +30,7 @@ export default async function Home({
   return (
     <>
       <section className="bg-[#f8fafc] px-3 py-3 sm:px-5 sm:py-5">
-        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden rounded-2xl bg-[#06182d] shadow-[0_24px_70px_rgba(2,16,34,.16)]">
+        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden bg-[#06182d] shadow-[0_24px_70px_rgba(2,16,34,.16)]">
           <img
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
             alt="New York city street"
@@ -41,8 +41,8 @@ export default async function Home({
           <div className="absolute inset-x-0 bottom-0 -z-10 h-56 bg-gradient-to-t from-[#06182d] via-[#06182d]/75 to-transparent" />
           <div className="mx-auto grid min-h-[31rem] max-w-6xl items-center gap-12 px-5 pb-14 pt-14 sm:pb-16 sm:pt-16 md:min-h-[34rem] lg:grid-cols-[minmax(0,1fr)_20rem] lg:py-20">
             <div className="w-full max-w-[51rem]">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
+              <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-sky-200 shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
+                <span className="h-1.5 w-1.5 bg-sky-300 shadow-[0_0_0_4px_rgba(125,211,252,.12)]" />
                 {t.tagline}
               </p>
               <TextEffect
@@ -78,21 +78,21 @@ export default async function Home({
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  className="pressable inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
+                  className="pressable inline-flex min-h-12 items-center justify-center gap-2 bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_30px_rgba(2,16,34,.3),inset_0_1px_0_rgba(255,255,255,.2)] hover:bg-blue-500"
                   href={`/${locale}/contact`}
                 >
                   {t.consult}
                   <ArrowRight size={16} />
                 </Link>
                 <Link
-                  className="pressable inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[.09] px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-xl hover:bg-white/[.14]"
+                  className="pressable inline-flex min-h-12 items-center justify-center border border-white/20 bg-white/[.09] px-6 py-3 text-sm font-bold text-white shadow-[inset_0_1px_0_rgba(255,255,255,.15)] backdrop-blur-xl hover:bg-white/[.14]"
                   href={`/${locale}/services`}
                 >
                   {t.services}
                 </Link>
               </div>
             </div>
-            <aside className="hidden self-end rounded-2xl border border-white/15 bg-white/[.1] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-xl lg:block">
+            <aside className="hidden self-end border border-white/15 bg-white/[.1] p-5 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.12)] backdrop-blur-xl lg:block">
               <p className="text-[10px] font-bold tracking-[.15em] text-sky-200">
                 {zh ? "清晰推进每一步" : "A CLEAR WAY FORWARD"}
               </p>
