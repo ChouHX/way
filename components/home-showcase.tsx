@@ -76,19 +76,19 @@ export function HeroStats({ locale }: { locale: Locale }) {
   ];
 
   return (
-    <div className="hero-stats relative z-10 mx-auto w-full max-w-6xl px-5">
-      <div className="overflow-hidden border border-white/45 bg-white/[.9] shadow-[0_24px_65px_rgba(9,11,18,.22),inset_0_1px_0_rgba(255,255,255,.9)] backdrop-blur-2xl backdrop-saturate-150">
+    <div className="hero-stats relative z-10 w-full bg-white">
+      <div className="mx-auto max-w-6xl px-5">
         <div className="grid grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.label}
-                className={`group relative min-w-0 px-4 py-4 sm:px-6 sm:py-5 ${index % 2 ? "border-l border-slate-200/75" : ""} ${index > 1 ? "border-t border-slate-200/75 lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-slate-200/75" : ""}`}
+                className={`group relative min-w-0 px-4 py-7 sm:px-7 sm:py-8 ${index % 2 ? "border-l border-slate-200" : ""} ${index > 1 ? "border-t border-slate-200 lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-slate-200" : ""}`}
               >
                 <div className="flex items-start gap-3.5">
-                  <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center border border-[#d9d1b5] bg-[#f4f1e8] text-[#8a7d51]">
-                    <Icon size={17} strokeWidth={1.9} />
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center text-[#1a243f]">
+                    <Icon size={22} strokeWidth={1.8} />
                   </span>
                   <div className="min-w-0">
                     <b className="block whitespace-nowrap text-[1.55rem] font-bold leading-none tracking-[-.045em] text-[#1a243f] sm:text-[1.75rem]">

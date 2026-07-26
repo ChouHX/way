@@ -22,8 +22,8 @@ export default async function Home({
   const cases = await getFeaturedPublicCases();
   return (
     <>
-      <section className="bg-[#f4f4f4] px-0 py-0 sm:px-5 sm:py-5">
-        <div className="relative isolate mx-auto max-w-[90rem] overflow-hidden bg-[#1a243f] shadow-[0_24px_70px_rgba(9,11,18,.16)]">
+      <section className="bg-[#1a243f]">
+        <div className="relative isolate overflow-hidden bg-[#1a243f]">
           <img
             src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=2200&q=85"
             alt="New York city street"
@@ -87,7 +87,6 @@ export default async function Home({
             </div>
           </div>
           <HeroStats locale={locale} />
-          <div className="h-7 sm:h-9" />
           <div className="absolute inset-x-0 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
         </div>
       </section>
