@@ -5,7 +5,7 @@ import { ConsultationCallout } from "@/components/shared";
 import { TextEffect } from "@/components/core/text-effect";
 import { HeroStats, HomeServiceDialogs } from "@/components/home-showcase";
 import { HomeTicketGuide } from "@/components/home-ticket-guide";
-import { getFeaturedPublicCases } from "@/lib/content";
+import { getFeaturedPublicCases, getPublicServices } from "@/lib/content";
 import { HomeCaseMarquee } from "@/components/home-case-marquee";
 
 export default async function Home({
@@ -19,7 +19,7 @@ export default async function Home({
   const heroLines = zh
     ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航"
     : "Practical guidance for ticket and\nimmigration matters that protect you.";
-  const cases = await getFeaturedPublicCases();
+  const [cases, services] = await Promise.all([getFeaturedPublicCases(), getPublicServices()]);
   return (
     <>
       <section className="bg-[#1a243f]">
@@ -109,7 +109,7 @@ export default async function Home({
             {zh ? "全部服务" : "All services"} →
           </Link>
         </div>
-        <HomeServiceDialogs locale={locale} />
+        <HomeServiceDialogs locale={locale} services={services} />
       </section>
       <HomeTicketGuide locale={locale} />
       <section className="border-y border-[#dedede] bg-white">

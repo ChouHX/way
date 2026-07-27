@@ -86,3 +86,28 @@ CREATE INDEX IF NOT EXISTS idx_case_studies_type ON case_studies(type_id);
 CREATE INDEX IF NOT EXISTS idx_case_studies_region ON case_studies(region_id);
 CREATE INDEX IF NOT EXISTS idx_guides_published ON guides(published, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_case_studies_published ON case_studies(published, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS services (
+  id TEXT PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  icon_key TEXT NOT NULL DEFAULT 'ticket',
+  title_zh TEXT NOT NULL,
+  title_en TEXT NOT NULL,
+  short_title_zh TEXT NOT NULL,
+  short_title_en TEXT NOT NULL,
+  intro_zh TEXT NOT NULL DEFAULT '',
+  intro_en TEXT NOT NULL DEFAULT '',
+  overview_zh TEXT NOT NULL DEFAULT '',
+  overview_en TEXT NOT NULL DEFAULT '',
+  points_zh TEXT NOT NULL DEFAULT '[]',
+  points_en TEXT NOT NULL DEFAULT '[]',
+  steps_json TEXT NOT NULL DEFAULT '[]',
+  image_url TEXT NOT NULL DEFAULT '',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  published INTEGER NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_services_published_sort ON services(published, sort_order);
+
+-- Existing service copy is seeded by migrations/0005_services.sql.

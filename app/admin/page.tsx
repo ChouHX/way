@@ -15,9 +15,11 @@ import {
   ShieldCheck,
   Tags,
   Trash2,
+  Wrench,
   X,
 } from "lucide-react";
 import { Badge, Button, Card, Select } from "@/components/ui";
+import { serviceIconOptions, type ServiceStep } from "@/lib/services";
 
 type Category = {
   id: string;
@@ -66,7 +68,26 @@ type Pagination = {
   total: number;
   totalPages: number;
 };
-type Section = "site" | "cases" | "taxonomy";
+type AdminService = {
+  id: string;
+  slug: string;
+  icon_key: string;
+  title_zh: string;
+  title_en: string;
+  short_title_zh: string;
+  short_title_en: string;
+  intro_zh: string;
+  intro_en: string;
+  overview_zh: string;
+  overview_en: string;
+  points_zh: string;
+  points_en: string;
+  steps_json: string;
+  image_url: string;
+  sort_order: number;
+  published: number;
+};
+type Section = "site" | "services" | "cases" | "taxonomy";
 type Auth = "loading" | "ready" | "signed-out" | "unavailable";
 const maxImageBytes = 450 * 1024;
 async function compressImage(file: File) {
@@ -117,6 +138,7 @@ export default function AdminPage() {
     [types, setTypes] = useState<CaseType[]>([]),
     [regions, setRegions] = useState<Region[]>([]),
     [guides, setGuides] = useState<Guide[]>([]),
+    [services, setServices] = useState<AdminService[]>([]),
     [cases, setCases] = useState<CaseStudy[]>([]),
     [pagination, setPagination] = useState<Pagination>({
       page: 1,
@@ -127,12 +149,13 @@ export default function AdminPage() {
   const load = async (page = 1, pageSize = 20) => {
     setBusy("正在加载后台数据");
     try {
-      const [s, c, t, r, g, k] = await Promise.all([
+      const [s, c, t, r, g, v, k] = await Promise.all([
         api("site"),
         api("categories"),
         api("types"),
         api("regions"),
         api("guides"),
+        api("services"),
         api(`cases&page=${page}&pageSize=${pageSize}`),
       ]);
       setSite({
@@ -143,6 +166,7 @@ export default function AdminPage() {
       setTypes(t.types);
       setRegions(r.regions);
       setGuides(g.guides);
+      setServices(v.services);
       setCases(k.cases);
       setPagination(k.pagination);
       setAuth("ready");
@@ -255,6 +279,7 @@ export default function AdminPage() {
             <nav className="flex gap-5 border-b border-slate-200">
               {[
                 ["site", Settings2, "站点管理"],
+                ["services", Wrench, "服务管理"],
                 ["cases", BriefcaseBusiness, "案例管理"],
                 ["taxonomy", Tags, "类型管理"],
               ].map(([id, Icon, label]) => (
@@ -282,6 +307,20 @@ export default function AdminPage() {
                   try {
                     await post("site", { action: "site", ...site });
                     setStatus("站点标题已保存");
+                  } finally {
+                    setBusy(null);
+                  }
+                }}
+              />
+            ) : section === "services" ? (
+              <ServicesPanel
+                services={services}
+                loading={Boolean(busy)}
+                save={async (body) => {
+                  setBusy("正在保存服务项目");
+                  try {
+                    await post("services", body);
+                    await refresh("服务项目已更新");
                   } finally {
                     setBusy(null);
                   }
@@ -442,6 +481,83 @@ function SitePanel({
       </Card>
     </section>
   );
+}
+function parseAdminJson<T>(value: string, fallback: T): T {
+  try { return JSON.parse(value) as T; } catch { return fallback; }
+}
+function ServicesPanel({ services, loading, save }: {
+  services: AdminService[];
+  loading: boolean;
+  save: (body: object) => Promise<void>;
+}) {
+  const [dialog, setDialog] = useState<{ mode: "create" | "edit" | "delete"; item?: AdminService } | null>(null);
+  return (
+    <section className="py-5">
+      <div className="flex items-end justify-between gap-4">
+        <Heading eyebrow="SERVICES" title="服务项目管理" text="配置前台服务项目的中英文文案、图片、排序和发布状态。" />
+        <Button disabled={loading} className="shrink-0 px-4 py-2.5 text-xs" onClick={() => setDialog({ mode: "create" })}>
+          <Plus size={15} />新增服务
+        </Button>
+      </div>
+      <Card className="mt-4 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-left text-xs">
+            <thead className="border-b bg-slate-50 text-[10px] text-slate-500"><tr><th className="px-4 py-3">服务项目</th><th className="px-4 py-3">URL 标识</th><th className="px-4 py-3">排序</th><th className="px-4 py-3">状态</th><th className="px-4 py-3 text-right">操作</th></tr></thead>
+            <tbody className="divide-y divide-slate-100">
+              {services.map((item) => (
+                <tr key={item.id} className="hover:bg-blue-50/30">
+                  <td className="max-w-[360px] px-4 py-3"><b className="block text-[#0f2747]">{item.title_zh}</b><span className="mt-1 block line-clamp-1 text-[11px] text-slate-500">{item.title_en}</span></td>
+                  <td className="px-4 py-3 font-mono text-[11px] text-slate-500">{item.slug}</td>
+                  <td className="px-4 py-3 text-slate-600">{item.sort_order}</td>
+                  <td className="px-4 py-3"><span className={item.published ? "text-emerald-700" : "text-slate-400"}>{item.published ? "已发布" : "草稿"}</span></td>
+                  <td className="px-4 py-3"><div className="flex justify-end gap-1"><Icon onClick={() => setDialog({ mode: "edit", item })}><Pencil size={14} /></Icon><Icon onClick={() => setDialog({ mode: "delete", item })}><Trash2 size={14} /></Icon></div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {!services.length && <p className="px-5 py-10 text-center text-sm text-slate-500">暂无服务项目，请先新增。</p>}
+      </Card>
+      {dialog?.mode === "delete" && <Modal close={() => setDialog(null)} locked={loading}><div className="p-5"><h2 className="font-bold text-[#0f2747]">删除服务项目</h2><p className="mt-2 text-sm text-slate-500">确认删除“{dialog.item?.title_zh}”？对应前台页面将无法访问。</p><div className="mt-5 flex justify-end gap-2"><button disabled={loading} onClick={() => setDialog(null)} className="border px-3 py-2 text-xs font-bold">取消</button><Button disabled={loading} className="bg-red-600 py-2 text-xs hover:bg-red-700" onClick={async () => { await save({ action: "delete-service", id: dialog.item?.id }); setDialog(null); }}>{loading && <LoaderCircle size={14} className="animate-spin" />}{loading ? "删除中…" : "删除"}</Button></div></div></Modal>}
+      {dialog && dialog.mode !== "delete" && <ServiceForm item={dialog.item} loading={loading} close={() => setDialog(null)} save={async (body) => { await save(body); setDialog(null); }} />}
+    </section>
+  );
+}
+function ServiceForm({ item, loading, close, save }: { item?: AdminService; loading: boolean; close: () => void; save: (body: object) => Promise<void> }) {
+  const blankStep: ServiceStep = { title_zh: "", title_en: "", description_zh: "", description_en: "" };
+  const existingSteps = item ? parseAdminJson<ServiceStep[]>(item.steps_json, []) : [];
+  const [steps, setSteps] = useState<ServiceStep[]>(existingSteps.length ? existingSteps : [{ ...blankStep }, { ...blankStep }, { ...blankStep }]);
+  const [image, setImage] = useState(item?.image_url || "");
+  const [error, setError] = useState("");
+  return <Modal close={close} wide locked={loading}>
+    <form className="p-5" onSubmit={async (e) => {
+      e.preventDefault(); const f = new FormData(e.currentTarget); setError("");
+      try { await save({
+        action: item ? "update-service" : "service", id: item?.id, slug: f.get("slug"), iconKey: f.get("iconKey"),
+        titleZh: f.get("titleZh"), titleEn: f.get("titleEn"), shortTitleZh: f.get("shortTitleZh"), shortTitleEn: f.get("shortTitleEn"),
+        introZh: f.get("introZh"), introEn: f.get("introEn"), overviewZh: f.get("overviewZh"), overviewEn: f.get("overviewEn"),
+        pointsZh: String(f.get("pointsZh") || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean),
+        pointsEn: String(f.get("pointsEn") || "").split(/\r?\n/).map(x => x.trim()).filter(Boolean),
+        steps, imageUrl: image, sortOrder: Number(f.get("sortOrder")), published: f.get("published") === "1",
+      }); } catch (e) { setError(e instanceof Error ? e.message : "保存失败"); }
+    }}>
+      <h2 className="text-lg font-bold text-[#0f2747]">{item ? "编辑服务项目" : "新增服务项目"}</h2>
+      <fieldset disabled={loading} className="mt-4 grid gap-3 md:grid-cols-2">
+        <Field name="titleZh" label="中文标题" defaultValue={item?.title_zh} required /><Field name="titleEn" label="English title" defaultValue={item?.title_en} required />
+        <Field name="shortTitleZh" label="中文短标题（导航用）" defaultValue={item?.short_title_zh} required /><Field name="shortTitleEn" label="English short title" defaultValue={item?.short_title_en} required />
+        <Field name="slug" label="URL 标识" defaultValue={item?.slug} placeholder="traffic-tickets" required />
+        <label className="grid gap-1.5 text-xs font-bold">图标<Select name="iconKey" defaultValue={item?.icon_key || "ticket"}>{serviceIconOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</Select></label>
+        <Area name="introZh" label="中文简介" defaultValue={item?.intro_zh} required /><Area name="introEn" label="English intro" defaultValue={item?.intro_en} required />
+        <Area name="overviewZh" label="中文服务概览" defaultValue={item?.overview_zh} required /><Area name="overviewEn" label="English overview" defaultValue={item?.overview_en} required />
+        <Area name="pointsZh" label="中文服务要点（每行一项）" defaultValue={parseAdminJson<string[]>(item?.points_zh || "[]", []).join("\n")} required /><Area name="pointsEn" label="English key points (one per line)" defaultValue={parseAdminJson<string[]>(item?.points_en || "[]", []).join("\n")} required />
+        <div className="md:col-span-2"><p className="mb-2 text-xs font-bold">服务流程</p><div className="grid gap-3">{steps.map((step, index) => <div key={index} className="grid gap-2 border border-slate-200 bg-slate-50 p-3 md:grid-cols-2"><Field label={`步骤 ${index + 1} 中文标题`} value={step.title_zh} onChange={e => setSteps(x => x.map((s, i) => i === index ? { ...s, title_zh: e.target.value } : s))} required /><Field label={`Step ${index + 1} title`} value={step.title_en} onChange={e => setSteps(x => x.map((s, i) => i === index ? { ...s, title_en: e.target.value } : s))} required /><Area label="中文说明" value={step.description_zh} onChange={e => setSteps(x => x.map((s, i) => i === index ? { ...s, description_zh: e.target.value } : s))} required /><Area label="English description" value={step.description_en} onChange={e => setSteps(x => x.map((s, i) => i === index ? { ...s, description_en: e.target.value } : s))} required /></div>)}</div><button type="button" className="mt-2 text-xs font-bold text-blue-700" onClick={() => setSteps(x => [...x, { ...blankStep }])}>+ 增加步骤</button>{steps.length > 1 && <button type="button" className="ml-4 text-xs text-red-600" onClick={() => setSteps(x => x.slice(0, -1))}>移除最后一步</button>}</div>
+        <Field name="sortOrder" type="number" label="排序" defaultValue={item?.sort_order || 0} /><label className="grid gap-1.5 text-xs font-bold">状态<Select name="published" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label>
+        <div className="md:col-span-2"><label className="grid gap-1.5 text-xs font-bold">服务图片<div className="flex flex-wrap items-center gap-3 border border-dashed border-slate-300 bg-slate-50 p-3">{image ? <img src={image} className="h-20 w-32 object-cover" alt="" /> : <span className="grid h-20 w-32 place-items-center bg-white text-slate-400"><ImagePlus size={20} /></span>}<label className="cursor-pointer border bg-white px-3 py-2 text-xs font-bold text-blue-700"><input type="file" accept="image/*" className="sr-only" onChange={async e => { const file=e.target.files?.[0]; if(file) try { setImage(await compressImage(file)); } catch(e) { setError(e instanceof Error ? e.message : "图片处理失败"); } }} />{image ? "替换图片" : "选择图片"}</label><span className="text-[11px] text-slate-400">或填写 HTTPS 图片地址</span><input value={image.startsWith("data:") ? "" : image} onChange={e => setImage(e.target.value)} placeholder="https://..." className="min-w-[240px] flex-1 border border-slate-300 bg-white px-3 py-2 text-xs" /></div></label></div>
+      </fieldset>
+      {error && <p className="mt-3 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
+      <div className="mt-5 flex justify-end gap-2"><button type="button" disabled={loading} onClick={close} className="border px-3 py-2 text-xs font-bold">取消</button><Button disabled={loading} className="min-w-28 py-2 text-xs">{loading ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{loading ? "保存中…" : "保存服务"}</Button></div>
+    </form>
+  </Modal>;
 }
 function TaxonomyPanel({
   categories,

@@ -6,7 +6,7 @@ import { ChevronDown, Clock3, Mail, MapPin, Phone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
-import { localizeService, serviceItems } from "@/lib/services";
+import { getServiceIcon, localizeService, type ServiceItem } from "@/lib/services";
 import { publicCaseCategories } from "@/lib/case-categories";
 import { MobileNav } from "./mobile-nav";
 import { LanguageMenu } from "./language-menu";
@@ -38,9 +38,11 @@ export function Brand({ locale }: { locale: Locale }) {
 export function SiteShell({
   locale,
   children,
+  services,
 }: {
   locale: Locale;
   children: React.ReactNode;
+  services: ServiceItem[];
 }) {
   const t = getDictionary(locale);
   const pathname = usePathname();
@@ -137,9 +139,9 @@ export function SiteShell({
                         <span className="text-[#8a7d51]">→</span>
                       </Link>
                       <div className="grid grid-cols-2 gap-px pt-1">
-                        {serviceItems.map((service) => {
+                        {services.map((service) => {
                           const copy = localizeService(service, locale);
-                          const Icon = service.icon;
+                          const Icon = getServiceIcon(service.icon_key);
                           return (
                             <Link
                               key={service.slug}
@@ -239,17 +241,17 @@ export function SiteShell({
               <Phone size={15} />
               (888) 123-4567
             </a>
-            <MobileNav locale={locale} />
+            <MobileNav locale={locale} services={services} />
           </div>
         </div>
       </header>
       <PageTransition>{children}</PageTransition>
-      <Footer locale={locale} />
+      <Footer locale={locale} services={services} />
     </div>
   );
 }
 
-function Footer({ locale }: { locale: Locale }) {
+function Footer({ locale, services }: { locale: Locale; services: ServiceItem[] }) {
   const t = getDictionary(locale);
   const contact = [
     [Phone, "(888) 123-4567", "tel:8881234567"],
@@ -285,7 +287,7 @@ function Footer({ locale }: { locale: Locale }) {
             {locale === "zh" ? "服务项目" : "Services"}
           </h3>
           <div className="mt-4 grid gap-2.5 text-sm">
-            {serviceItems.map((service) => (
+            {services.map((service) => (
               <Link
                 key={service.slug}
                 href={`/${locale}/services/${service.slug}`}

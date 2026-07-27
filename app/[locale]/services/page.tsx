@@ -7,7 +7,8 @@ import {
   SearchCheck,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
-import { localizeService, serviceItems } from "@/lib/services";
+import { getServiceIcon, localizeService } from "@/lib/services";
+import { getPublicServices } from "@/lib/content";
 import {
   ConsultationCallout,
   PageHero,
@@ -21,6 +22,7 @@ export default async function Services({
   params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
+  const services = await getPublicServices();
   const zh = locale === "zh";
   const process = [
     [
@@ -74,8 +76,8 @@ export default async function Services({
           }
         />
         <div className="mt-10 grid gap-px border border-slate-200 bg-slate-200 lg:grid-cols-2">
-          {serviceItems.map((service, index) => {
-            const Icon = service.icon;
+          {services.map((service, index) => {
+            const Icon = getServiceIcon(service.icon_key);
             const copy = localizeService(service, locale);
             return (
               <Card
@@ -88,7 +90,7 @@ export default async function Services({
                 >
                   <div className="overflow-hidden bg-[#1a243f]">
                     <img
-                      src={service.image}
+                      src={service.image_url}
                       alt={copy.title}
                       className="h-48 w-full object-cover opacity-90 transition duration-300 group-hover:scale-[1.02] sm:h-full"
                     />

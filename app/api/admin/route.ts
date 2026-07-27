@@ -64,6 +64,12 @@ export async function GET(request: NextRequest) {
       ).all();
       return json({ guides: results });
     }
+    if (resource === "services") {
+      const { results } = await DB.prepare(
+        "SELECT * FROM services ORDER BY sort_order,created_at",
+      ).all();
+      return json({ services: results });
+    }
     if (resource === "cases") {
       const requestedPage = Math.max(
         1,
@@ -125,10 +131,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = (await request.json()) as Record<
-      string,
-      string | number | boolean | null
-    >;
+    const body = (await request.json()) as Record<string, unknown>;
     if (body.action === "login") {
       if (!(await validateAdminPassword(String(body.password ?? ""))))
         return json({ error: "密码不正确" }, { status: 401 });
@@ -155,6 +158,43 @@ export async function POST(request: NextRequest) {
         )
           .bind(key, String(value ?? ""))
           .run();
+      return json({ ok: true });
+    }
+    if (body.action === "service" || body.action === "update-service") {
+      const required = [
+        "slug", "titleZh", "titleEn", "shortTitleZh", "shortTitleEn",
+        "introZh", "introEn", "overviewZh", "overviewEn",
+      ];
+      if (required.some((key) => !String(body[key] ?? "").trim()))
+        return json({ error: "服务标识及中英文文案均为必填项" }, { status: 400 });
+      const slug = String(body.slug).trim().toLowerCase();
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
+        return json({ error: "URL 标识只能使用小写字母、数字和连字符" }, { status: 400 });
+      const pointsZh = Array.isArray(body.pointsZh) ? body.pointsZh.map(String).filter(Boolean) : [];
+      const pointsEn = Array.isArray(body.pointsEn) ? body.pointsEn.map(String).filter(Boolean) : [];
+      const steps = Array.isArray(body.steps) ? body.steps : [];
+      if (!pointsZh.length || !pointsEn.length || !steps.length)
+        return json({ error: "服务要点和服务流程不能为空" }, { status: 400 });
+      if (!validImage(String(body.imageUrl ?? "")))
+        return json({ error: "图片格式无效或压缩后超过 450 KB" }, { status: 413 });
+      const id = String(body.id || crypto.randomUUID());
+      const values = [
+        slug, String(body.iconKey || "ticket"), String(body.titleZh), String(body.titleEn),
+        String(body.shortTitleZh), String(body.shortTitleEn), String(body.introZh), String(body.introEn),
+        String(body.overviewZh), String(body.overviewEn), JSON.stringify(pointsZh), JSON.stringify(pointsEn),
+        JSON.stringify(steps), String(body.imageUrl ?? ""), Number(body.sortOrder ?? 0),
+        body.published === false ? 0 : 1,
+      ];
+      if (body.action === "service")
+        await DB.prepare("INSERT INTO services(id,slug,icon_key,title_zh,title_en,short_title_zh,short_title_en,intro_zh,intro_en,overview_zh,overview_en,points_zh,points_en,steps_json,image_url,sort_order,published) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+          .bind(id, ...values).run();
+      else
+        await DB.prepare("UPDATE services SET slug=?,icon_key=?,title_zh=?,title_en=?,short_title_zh=?,short_title_en=?,intro_zh=?,intro_en=?,overview_zh=?,overview_en=?,points_zh=?,points_en=?,steps_json=?,image_url=?,sort_order=?,published=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
+          .bind(...values, id).run();
+      return json({ ok: true, id });
+    }
+    if (body.action === "delete-service") {
+      await DB.prepare("DELETE FROM services WHERE id=?").bind(String(body.id)).run();
       return json({ ok: true });
     }
     if (body.action === "type" || body.action === "update-type") {

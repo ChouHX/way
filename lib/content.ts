@@ -1,5 +1,6 @@
 import { getWorkerEnv } from "@/lib/cloudflare";
 import { unstable_noStore as noStore } from "next/cache";
+import type { ServiceItem, ServiceStep } from "@/lib/services";
 
 export type Taxonomy = {
   id: string;
@@ -74,6 +75,44 @@ async function rows<T>(query: string, ...bindings: unknown[]) {
   } catch {
     return [] as T[];
   }
+}
+
+type ServiceRow = Omit<ServiceItem, "points_zh" | "points_en" | "steps"> & {
+  points_zh: string;
+  points_en: string;
+  steps_json: string;
+};
+
+function parseJson<T>(value: string, fallback: T): T {
+  try {
+    return JSON.parse(value) as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function mapService(row: ServiceRow): ServiceItem {
+  return {
+    ...row,
+    points_zh: parseJson<string[]>(row.points_zh, []),
+    points_en: parseJson<string[]>(row.points_en, []),
+    steps: parseJson<ServiceStep[]>(row.steps_json, []),
+  };
+}
+
+export async function getPublicServices(): Promise<ServiceItem[]> {
+  const result = await rows<ServiceRow>(
+    "SELECT * FROM services WHERE published=1 ORDER BY sort_order,created_at",
+  );
+  return result.map(mapService);
+}
+
+export async function getPublicService(slug: string): Promise<ServiceItem | undefined> {
+  const result = await rows<ServiceRow>(
+    "SELECT * FROM services WHERE slug=? AND published=1 LIMIT 1",
+    slug,
+  );
+  return result[0] ? mapService(result[0]) : undefined;
 }
 const publicCaseSelect =
   "SELECT s.*,c.name_zh category_name_zh,c.name_en category_name_en,t.name_zh type_name_zh,t.name_en type_name_en,r.name_zh region_name_zh,r.name_en region_name_en,g.slug guide_slug,g.title_zh guide_title_zh,g.title_en guide_title_en,g.summary_zh guide_summary_zh,g.summary_en guide_summary_en FROM case_studies s LEFT JOIN case_categories c ON c.id=s.category_id LEFT JOIN case_types t ON t.id=s.type_id AND NOT (LOWER(TRIM(t.name_en))='other' OR TRIM(t.name_zh)='其他') LEFT JOIN case_regions r ON r.id=s.region_id LEFT JOIN guides g ON g.id=s.guide_id AND g.published=1";

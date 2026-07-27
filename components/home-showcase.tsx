@@ -10,7 +10,7 @@ import {
   Languages,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
-import { localizeService, serviceItems } from "@/lib/services";
+import { getServiceIcon, localizeService, type ServiceItem } from "@/lib/services";
 
 function NumberTicker({
   value,
@@ -115,12 +115,12 @@ export function HeroStats({ locale }: { locale: Locale }) {
   );
 }
 
-export function HomeServiceDialogs({ locale }: { locale: Locale }) {
+export function HomeServiceDialogs({ locale, services }: { locale: Locale; services: ServiceItem[] }) {
   const zh = locale === "zh";
   return (
     <div className="mt-10 grid gap-px overflow-hidden border border-[#dedede] bg-[#dedede] md:grid-cols-2 lg:grid-cols-3">
-        {serviceItems.map((service) => {
-          const Icon = service.icon;
+        {services.map((service) => {
+          const Icon = getServiceIcon(service.icon_key);
           const copy = localizeService(service, locale);
           return (
             <Link

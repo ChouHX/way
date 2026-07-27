@@ -4,11 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, FileText } from "lucide-react";
 import { ConsultationCallout, PageHero } from "@/components/shared";
 import type { Locale } from "@/lib/i18n";
-import { getService, localizeService, serviceItems } from "@/lib/services";
-
-export function generateStaticParams() {
-  return serviceItems.map((service) => ({ slug: service.slug }));
-}
+import { getServiceIcon, localizeService } from "@/lib/services";
+import { getPublicService, getPublicServices } from "@/lib/content";
 
 export async function generateMetadata({
   params,
@@ -16,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const service = getService(slug);
+  const service = await getPublicService(slug);
   if (!service) return {};
   const copy = localizeService(service, locale);
   return {
@@ -31,13 +28,13 @@ export default async function ServiceDetail({
   params: Promise<{ locale: Locale; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const service = getService(slug);
+  const [service, services] = await Promise.all([getPublicService(slug), getPublicServices()]);
   if (!service) notFound();
 
   const zh = locale === "zh";
   const copy = localizeService(service, locale);
-  const Icon = service.icon;
-  const related = serviceItems.filter((item) => item.slug !== service.slug).slice(0, 3);
+  const Icon = getServiceIcon(service.icon_key);
+  const related = services.filter((item) => item.slug !== service.slug).slice(0, 3);
 
   return (
     <>
@@ -46,7 +43,7 @@ export default async function ServiceDetail({
         kicker={zh ? "服务项目" : "OUR SERVICES"}
         title={copy.title}
         description={copy.intro}
-        image={service.image}
+        image={service.image_url}
       />
       <main className="bg-[#f4f4f4]">
         <section className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:py-20 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,.8fr)]">
@@ -149,7 +146,7 @@ export default async function ServiceDetail({
           <div className="mt-8 grid gap-px border border-[#dedede] bg-[#dedede] md:grid-cols-3">
             {related.map((item) => {
               const relatedCopy = localizeService(item, locale);
-              const RelatedIcon = item.icon;
+              const RelatedIcon = getServiceIcon(item.icon_key);
               return (
                 <Link
                   key={item.slug}

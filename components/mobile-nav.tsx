@@ -6,12 +6,12 @@ import { ChevronDown, Menu, Phone, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getDictionary, type Locale } from "@/lib/i18n";
-import { localizeService, serviceItems } from "@/lib/services";
+import { localizeService, type ServiceItem } from "@/lib/services";
 import { publicCaseCategories } from "@/lib/case-categories";
 
 const paths = ["", "/services", "/cases", "/about", "/contact"];
 
-export function MobileNav({ locale }: { locale: Locale }) {
+export function MobileNav({ locale, services }: { locale: Locale; services: ServiceItem[] }) {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [casesOpen, setCasesOpen] = useState(false);
@@ -110,7 +110,7 @@ export function MobileNav({ locale }: { locale: Locale }) {
                                 >
                                   {locale === "zh" ? "全部服务项目" : "All services"}
                                 </Link>
-                                {serviceItems.map((service) => (
+                                {services.map((service) => (
                                   <Link
                                     key={service.slug}
                                     href={`/${locale}/services/${service.slug}`}
