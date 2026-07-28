@@ -1,9 +1,21 @@
 import {
   Car,
+  BadgeDollarSign,
+  Building2,
+  CircleDollarSign,
+  ClipboardCheck,
   CreditCard,
+  FileText,
+  Gavel,
+  Handshake,
+  House,
   Landmark,
+  ReceiptText,
+  Scale,
   ShieldCheck,
   Ticket,
+  UsersRound,
+  WalletCards,
   type LucideIcon,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
@@ -41,6 +53,18 @@ const serviceIcons: Record<string, LucideIcon> = {
   "credit-card": CreditCard,
   car: Car,
   shield: ShieldCheck,
+  scale: Scale,
+  gavel: Gavel,
+  "file-text": FileText,
+  handshake: Handshake,
+  receipt: ReceiptText,
+  wallet: WalletCards,
+  "circle-dollar": CircleDollarSign,
+  "badge-dollar": BadgeDollarSign,
+  building: Building2,
+  house: House,
+  users: UsersRound,
+  clipboard: ClipboardCheck,
 };
 
 export function getServiceIcon(iconKey: string): LucideIcon {
@@ -48,11 +72,12 @@ export function getServiceIcon(iconKey: string): LucideIcon {
 }
 
 export const serviceIconOptions = [
-  ["ticket", "罚单"],
-  ["landmark", "政府 / 移民"],
-  ["credit-card", "账户 / 支付"],
-  ["car", "车辆"],
-  ["shield", "信用 / 保障"],
+  ["ticket", "罚单"], ["scale", "法律咨询"], ["gavel", "争议处理"],
+  ["landmark", "移民服务"], ["building", "政府机构"], ["file-text", "资料文件"],
+  ["car", "车辆事故"], ["receipt", "账单费用"], ["credit-card", "账户支付"],
+  ["wallet", "财务服务"], ["circle-dollar", "款项处理"], ["badge-dollar", "理赔服务"],
+  ["shield", "信用保障"], ["handshake", "专业支持"], ["house", "住房事务"],
+  ["users", "客户服务"], ["clipboard", "流程管理"],
 ] as const;
 
 export function localizeService(service: ServiceItem, locale: Locale) {

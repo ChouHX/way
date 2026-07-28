@@ -4,7 +4,11 @@ import {
   BriefcaseBusiness,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  ContactRound,
   Eye,
+  GripVertical,
   ImagePlus,
   LoaderCircle,
   MapPin,
@@ -19,7 +23,7 @@ import {
   X,
 } from "lucide-react";
 import { Badge, Button, Card, Select } from "@/components/ui";
-import { serviceIconOptions, type ServiceStep } from "@/lib/services";
+import { getServiceIcon, serviceIconOptions, type ServiceStep } from "@/lib/services";
 
 type Category = {
   id: string;
@@ -87,7 +91,11 @@ type AdminService = {
   sort_order: number;
   published: number;
 };
-type Section = "site" | "services" | "cases" | "taxonomy";
+type ContactFormData = {
+  phone: string; email: string; addressZh: string; addressEn: string;
+  hoursZh: string; hoursEn: string; mapUrl: string;
+};
+type Section = "site" | "contact" | "services" | "cases" | "taxonomy";
 type Auth = "loading" | "ready" | "signed-out" | "unavailable";
 const maxImageBytes = 450 * 1024;
 async function compressImage(file: File) {
@@ -134,6 +142,7 @@ export default function AdminPage() {
     [busy, setBusy] = useState<string | null>("正在加载后台数据"),
     [section, setSection] = useState<Section>("site"),
     [site, setSite] = useState({ titleZh: "", titleEn: "" }),
+    [contact, setContact] = useState<ContactFormData>({ phone: "", email: "", addressZh: "", addressEn: "", hoursZh: "", hoursEn: "", mapUrl: "" }),
     [categories, setCategories] = useState<Category[]>([]),
     [types, setTypes] = useState<CaseType[]>([]),
     [regions, setRegions] = useState<Region[]>([]),
@@ -149,8 +158,9 @@ export default function AdminPage() {
   const load = async (page = 1, pageSize = 20) => {
     setBusy("正在加载后台数据");
     try {
-      const [s, c, t, r, g, v, k] = await Promise.all([
+      const [s, contactData, c, t, r, g, v, k] = await Promise.all([
         api("site"),
+        api("contact"),
         api("categories"),
         api("types"),
         api("regions"),
@@ -161,6 +171,15 @@ export default function AdminPage() {
       setSite({
         titleZh: s.settings.title_zh || "",
         titleEn: s.settings.title_en || "",
+      });
+      setContact({
+        phone: contactData.settings.contact_phone || "",
+        email: contactData.settings.contact_email || "",
+        addressZh: contactData.settings.contact_address_zh || "",
+        addressEn: contactData.settings.contact_address_en || "",
+        hoursZh: contactData.settings.contact_hours_zh || "",
+        hoursEn: contactData.settings.contact_hours_en || "",
+        mapUrl: contactData.settings.contact_map_url || "",
       });
       setCategories(c.categories);
       setTypes(t.types);
@@ -279,6 +298,7 @@ export default function AdminPage() {
             <nav className="flex gap-5 border-b border-slate-200">
               {[
                 ["site", Settings2, "站点管理"],
+                ["contact", ContactRound, "联系方式"],
                 ["services", Wrench, "服务管理"],
                 ["cases", BriefcaseBusiness, "案例管理"],
                 ["taxonomy", Tags, "类型管理"],
@@ -312,6 +332,13 @@ export default function AdminPage() {
                   }
                 }}
               />
+            ) : section === "contact" ? (
+              <ContactPanel contact={contact} setContact={setContact} loading={Boolean(busy)} save={async (event) => {
+                event.preventDefault();
+                setBusy("正在保存联系方式");
+                try { await post("contact", { action: "contact", ...contact }); setStatus("联系方式已更新"); }
+                finally { setBusy(null); }
+              }} />
             ) : section === "services" ? (
               <ServicesPanel
                 services={services}
@@ -482,6 +509,34 @@ function SitePanel({
     </section>
   );
 }
+function ContactPanel({ contact, setContact, loading, save }: {
+  contact: ContactFormData;
+  setContact: React.Dispatch<React.SetStateAction<ContactFormData>>;
+  loading: boolean;
+  save: (event: FormEvent) => void;
+}) {
+  const change = (key: keyof ContactFormData) => (event: React.ChangeEvent<HTMLInputElement>) => setContact((current) => ({ ...current, [key]: event.target.value }));
+  return (
+    <section className="max-w-4xl py-5">
+      <Heading eyebrow="CONTACT DETAILS" title="联系方式管理" text="统一维护页头、移动导航、联系页面和页脚展示的联系方式。" />
+      <form className="mt-4 grid gap-4" onSubmit={save}>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><ContactRound size={17} className="text-blue-600" /><h3 className="text-sm font-bold text-[#0f2747]">直接联系方式</h3></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2"><Field label="联系电话" value={contact.phone} onChange={change("phone")} placeholder="(888) 123-4567" required /><Field label="电子邮箱" type="email" value={contact.email} onChange={change("email")} placeholder="info@example.com" required /></div>
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><MapPin size={17} className="text-blue-600" /><h3 className="text-sm font-bold text-[#0f2747]">地址与营业时间</h3></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2"><Field label="中文地址" value={contact.addressZh} onChange={change("addressZh")} required /><Field label="English address" value={contact.addressEn} onChange={change("addressEn")} required /><Field label="中文营业时间" value={contact.hoursZh} onChange={change("hoursZh")} required /><Field label="English business hours" value={contact.hoursEn} onChange={change("hoursEn")} required /></div>
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><MapPin size={17} className="text-blue-600" /><div><h3 className="text-sm font-bold text-[#0f2747]">地图</h3><p className="mt-0.5 text-[11px] text-slate-500">填写 Google Maps 可嵌入的 HTTPS 地址。</p></div></div>
+          <div className="mt-4 grid gap-4 md:grid-cols-[1fr_18rem]"><Field label="地图嵌入链接" type="url" value={contact.mapUrl} onChange={change("mapUrl")} placeholder="https://www.google.com/maps?...&output=embed" required /><div className="relative min-h-36 overflow-hidden border border-slate-200 bg-slate-50">{contact.mapUrl.startsWith("https://") ? <iframe title="地图预览" src={contact.mapUrl} className="absolute inset-0 h-full w-full border-0" loading="lazy" referrerPolicy="no-referrer-when-downgrade" /> : <span className="absolute inset-0 grid place-items-center text-xs text-slate-400">地图预览</span>}</div></div>
+        </Card>
+        <Button disabled={loading} className="w-fit py-2.5 text-xs">{loading ? <LoaderCircle size={15} className="animate-spin" /> : <Save size={15} />}{loading ? "正在保存…" : "保存联系方式"}</Button>
+      </form>
+    </section>
+  );
+}
 function parseAdminJson<T>(value: string, fallback: T): T {
   try { return JSON.parse(value) as T; } catch { return fallback; }
 }
@@ -519,7 +574,7 @@ function ServicesPanel({ services, loading, save }: {
         {!services.length && <p className="px-5 py-10 text-center text-sm text-slate-500">暂无服务项目，请先新增。</p>}
       </Card>
       {dialog?.mode === "delete" && <Modal close={() => setDialog(null)} locked={loading}><div className="p-5"><h2 className="font-bold text-[#0f2747]">删除服务项目</h2><p className="mt-2 text-sm text-slate-500">确认删除“{dialog.item?.title_zh}”？对应前台页面将无法访问。</p><div className="mt-5 flex justify-end gap-2"><button disabled={loading} onClick={() => setDialog(null)} className="border px-3 py-2 text-xs font-bold">取消</button><Button disabled={loading} className="bg-red-600 py-2 text-xs hover:bg-red-700" onClick={async () => { await save({ action: "delete-service", id: dialog.item?.id }); setDialog(null); }}>{loading && <LoaderCircle size={14} className="animate-spin" />}{loading ? "删除中…" : "删除"}</Button></div></div></Modal>}
-      {dialog && dialog.mode !== "delete" && <ServiceForm item={dialog.item} loading={loading} close={() => setDialog(null)} save={async (body) => { await save(body); setDialog(null); }} />}
+      {dialog && dialog.mode !== "delete" && <ServiceEditor item={dialog.item} loading={loading} close={() => setDialog(null)} save={async (body) => { await save(body); setDialog(null); }} />}
     </section>
   );
 }
@@ -559,6 +614,87 @@ function ServiceForm({ item, loading, close, save }: { item?: AdminService; load
     </form>
   </Modal>;
 }
+function moveItem<T>(items: T[], index: number, direction: -1 | 1) {
+  const target = index + direction;
+  if (target < 0 || target >= items.length) return items;
+  const next = [...items];
+  [next[index], next[target]] = [next[target], next[index]];
+  return next;
+}
+type ServicePoint = { zh: string; en: string };
+function ServiceEditor({ item, loading, close, save }: { item?: AdminService; loading: boolean; close: () => void; save: (body: object) => Promise<void> }) {
+  const initialPointsZh = parseAdminJson<string[]>(item?.points_zh || "[]", []);
+  const initialPointsEn = parseAdminJson<string[]>(item?.points_en || "[]", []);
+  const initialCount = Math.max(initialPointsZh.length, initialPointsEn.length, 1);
+  const [iconKey, setIconKey] = useState(item?.icon_key || "ticket");
+  const [image, setImage] = useState(item?.image_url || "");
+  const [previewTitle, setPreviewTitle] = useState(item?.title_zh || "");
+  const [previewIntro, setPreviewIntro] = useState(item?.intro_zh || "");
+  const [points, setPoints] = useState<ServicePoint[]>(Array.from({ length: initialCount }, (_, index) => ({ zh: initialPointsZh[index] || "", en: initialPointsEn[index] || "" })));
+  const [steps, setSteps] = useState<ServiceStep[]>(() => {
+    const saved = parseAdminJson<ServiceStep[]>(item?.steps_json || "[]", []);
+    return saved.length ? saved : [{ title_zh: "", title_en: "", description_zh: "", description_en: "" }];
+  });
+  const [error, setError] = useState("");
+  const SelectedIcon = getServiceIcon(iconKey);
+  const updatePoint = (index: number, key: keyof ServicePoint, value: string) => setPoints((current) => current.map((point, i) => i === index ? { ...point, [key]: value } : point));
+  const updateStep = (index: number, key: keyof ServiceStep, value: string) => setSteps((current) => current.map((step, i) => i === index ? { ...step, [key]: value } : step));
+  return (
+    <Modal close={close} extraWide locked={loading}>
+      <form className="min-h-0" onSubmit={async (event) => {
+        event.preventDefault();
+        setError("");
+        const form = new FormData(event.currentTarget);
+        try {
+          await save({
+            action: item ? "update-service" : "service", id: item?.id,
+            slug: form.get("slug"), iconKey,
+            titleZh: form.get("titleZh"), titleEn: form.get("titleEn"),
+            shortTitleZh: form.get("shortTitleZh"), shortTitleEn: form.get("shortTitleEn"),
+            introZh: form.get("introZh"), introEn: form.get("introEn"),
+            overviewZh: form.get("overviewZh"), overviewEn: form.get("overviewEn"),
+            pointsZh: points.map((point) => point.zh.trim()).filter(Boolean),
+            pointsEn: points.map((point) => point.en.trim()).filter(Boolean),
+            steps, imageUrl: image, sortOrder: Number(form.get("sortOrder")), published: form.get("published") === "1",
+          });
+        } catch (cause) { setError(cause instanceof Error ? cause.message : "保存失败"); }
+      }}>
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
+          <div><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">SERVICE EDITOR</p><h2 className="mt-1 text-lg font-bold text-[#0f2747]">{item ? "编辑服务项目" : "新增服务项目"}</h2></div>
+          <span className="mr-9 text-xs text-slate-500">中英文内容将同步展示在前台</span>
+        </header>
+        <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_19rem]">
+          <fieldset disabled={loading} className="min-w-0 space-y-7 p-6">
+            <EditorSection number="01" title="基础信息" text="用于生成服务页面、导航和排序。">
+              <div className="grid gap-3 sm:grid-cols-2"><Field name="titleZh" label="中文标题" value={previewTitle} onChange={(event) => setPreviewTitle(event.target.value)} required /><Field name="titleEn" label="English title" defaultValue={item?.title_en} required /><Field name="shortTitleZh" label="中文短标题" defaultValue={item?.short_title_zh} required /><Field name="shortTitleEn" label="English short title" defaultValue={item?.short_title_en} required /><Field name="slug" label="URL 标识" defaultValue={item?.slug} placeholder="traffic-tickets" required /><div className="grid grid-cols-2 gap-3"><Field name="sortOrder" type="number" label="排序" defaultValue={item?.sort_order || 0} /><label className="grid gap-1.5 text-xs font-bold"><span>状态</span><Select name="published" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label></div></div>
+            </EditorSection>
+            <EditorSection number="02" title="服务图标" text="选择后会立即反映在右侧预览和前台卡片中。">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">{serviceIconOptions.map(([value, label]) => { const Icon = getServiceIcon(value); const selected = value === iconKey; return <button key={value} title={label} type="button" onClick={() => setIconKey(value)} className={`group grid min-h-20 place-items-center border p-2 text-center transition-[border-color,background-color,color,transform] duration-150 ease-out active:scale-[.97] ${selected ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100" : "border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-[#0f2747]"}`}><Icon size={21} /><span className="mt-1 text-[10px] font-bold leading-3">{label}</span></button>; })}</div>
+            </EditorSection>
+            <EditorSection number="03" title="页面文案" text="列表页使用简介；详情页使用服务概览。">
+              <div className="grid gap-3 sm:grid-cols-2"><Area name="introZh" label="中文简介" value={previewIntro} onChange={(event) => setPreviewIntro(event.target.value)} required /><Area name="introEn" label="English intro" defaultValue={item?.intro_en} required /><Area name="overviewZh" label="中文服务概览" defaultValue={item?.overview_zh} required /><Area name="overviewEn" label="English overview" defaultValue={item?.overview_en} required /></div>
+            </EditorSection>
+            <EditorSection number="04" title="服务要点" text="每项要点可单独调整顺序或删除。">
+              <div className="space-y-2">{points.map((point, index) => <div key={index} className="grid gap-2 border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[auto_1fr_1fr_auto]"><span className="flex items-center text-slate-400"><GripVertical size={16} /><b className="text-xs">{String(index + 1).padStart(2, "0")}</b></span><input aria-label={`第 ${index + 1} 项中文要点`} value={point.zh} onChange={(event) => updatePoint(index, "zh", event.target.value)} placeholder="中文服务要点" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><input aria-label={`Key point ${index + 1} in English`} value={point.en} onChange={(event) => updatePoint(index, "en", event.target.value)} placeholder="English key point" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><ItemControls index={index} count={points.length} disabled={loading} up={() => setPoints((current) => moveItem(current, index, -1))} down={() => setPoints((current) => moveItem(current, index, 1))} remove={() => setPoints((current) => current.filter((_, i) => i !== index))} /></div>)}</div>
+              <AddInline label="增加服务要点" onClick={() => setPoints((current) => [...current, { zh: "", en: "" }])} />
+            </EditorSection>
+            <EditorSection number="05" title="服务流程" text="步骤数量不设限制；可任意增加、删除和排序。">
+              <div className="space-y-3">{steps.map((step, index) => <article key={index} className="border border-slate-200 bg-slate-50"><div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2"><span className="flex items-center gap-1.5 text-xs font-bold text-[#0f2747]"><GripVertical size={16} className="text-slate-400" />步骤 {String(index + 1).padStart(2, "0")}</span><ItemControls index={index} count={steps.length} disabled={loading} up={() => setSteps((current) => moveItem(current, index, -1))} down={() => setSteps((current) => moveItem(current, index, 1))} remove={() => setSteps((current) => current.filter((_, i) => i !== index))} /></div><div className="grid gap-3 p-3 sm:grid-cols-2"><Field label="中文标题" value={step.title_zh} onChange={(event) => updateStep(index, "title_zh", event.target.value)} required /><Field label="English title" value={step.title_en} onChange={(event) => updateStep(index, "title_en", event.target.value)} required /><Area label="中文说明" value={step.description_zh} onChange={(event) => updateStep(index, "description_zh", event.target.value)} required /><Area label="English description" value={step.description_en} onChange={(event) => updateStep(index, "description_en", event.target.value)} required /></div></article>)}</div>
+              <AddInline label="增加流程步骤" onClick={() => setSteps((current) => [...current, { title_zh: "", title_en: "", description_zh: "", description_en: "" }])} />
+            </EditorSection>
+            <EditorSection number="06" title="服务图片" text="支持上传图片或填写 HTTPS 图片地址。"><div className="flex flex-wrap items-center gap-3 border border-dashed border-slate-300 bg-slate-50 p-3">{image ? <img src={image} className="h-20 w-32 object-cover" alt="" /> : <span className="grid h-20 w-32 place-items-center bg-white text-slate-400"><ImagePlus size={20} /></span>}<label className="cursor-pointer border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:border-blue-300"><input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; try { setImage(await compressImage(file)); } catch (cause) { setError(cause instanceof Error ? cause.message : "图片处理失败"); } }} />{image ? "替换图片" : "选择图片"}</label><input value={image.startsWith("data:") ? "" : image} onChange={(event) => setImage(event.target.value)} placeholder="https://example.com/service-image.jpg" className="min-w-[14rem] flex-1 border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /></div></EditorSection>
+          </fieldset>
+          <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:border-l lg:border-t-0"><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">LIVE PREVIEW</p><p className="mt-1 text-sm font-bold text-[#0f2747]">服务卡片预览</p><div className="mt-4 overflow-hidden border border-slate-200 bg-white shadow-sm">{image ? <img src={image} alt="" className="h-32 w-full object-cover" /> : <div className="grid h-32 place-items-center bg-[#1a243f] text-white/50"><ImagePlus size={22} /></div>}<div className="p-4"><span className="grid h-10 w-10 place-items-center bg-[#f4f1e8] text-[#8a7d51]"><SelectedIcon size={21} /></span><p className="mt-4 text-lg font-bold text-[#1a243f]">{previewTitle || "服务中文标题"}</p><p className="mt-2 text-xs leading-5 text-slate-500">{previewIntro || "填写中文简介后，将在此显示服务卡片摘要。"}</p></div></div><p className="mt-5 text-xs leading-5 text-slate-500">预览展示图标、图片和中文文案效果。保存后前台将显示最新内容。</p></aside>
+        </div>
+        {error && <p className="mx-6 mb-4 border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
+        <footer className="sticky bottom-0 flex justify-end gap-2 border-t border-slate-200 bg-white px-6 py-4"><button type="button" disabled={loading} onClick={close} className="border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 disabled:opacity-50">取消</button><Button disabled={loading} className="min-w-28 py-2 text-xs">{loading ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{loading ? "保存中…" : "保存服务"}</Button></footer>
+      </form>
+    </Modal>
+  );
+}
+function EditorSection({ number, title, text, children }: { number: string; title: string; text: string; children: React.ReactNode }) { return <section className="border-b border-slate-200 pb-7 last:border-b-0 last:pb-0"><div className="mb-4 flex gap-3"><span className="pt-0.5 text-xs font-bold text-blue-600">{number}</span><div><h3 className="text-sm font-bold text-[#0f2747]">{title}</h3><p className="mt-0.5 text-xs text-slate-500">{text}</p></div></div>{children}</section>; }
+function AddInline({ label, onClick }: { label: string; onClick: () => void }) { return <button type="button" onClick={onClick} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 transition-colors hover:text-blue-900 active:scale-[.97]"><Plus size={15} />{label}</button>; }
+function ItemControls({ index, count, disabled, up, down, remove }: { index: number; count: number; disabled: boolean; up: () => void; down: () => void; remove: () => void }) { return <div className="flex items-center justify-end gap-1"><button type="button" title="上移" aria-label="上移" disabled={disabled || index === 0} onClick={up} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronUp size={14} /></button><button type="button" title="下移" aria-label="下移" disabled={disabled || index === count - 1} onClick={down} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronDown size={14} /></button><button type="button" title="删除" aria-label="删除" disabled={disabled || count <= 1} onClick={remove} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></div>; }
 function TaxonomyPanel({
   categories,
   types,
@@ -1324,11 +1460,13 @@ function Modal({
   children,
   close,
   wide = false,
+  extraWide = false,
   locked = false,
 }: {
   children: React.ReactNode;
   close: () => void;
   wide?: boolean;
+  extraWide?: boolean;
   locked?: boolean;
 }) {
   return (
@@ -1338,7 +1476,7 @@ function Modal({
       aria-modal="true"
     >
       <div
-        className={`relative my-auto max-h-[calc(100dvh-2rem)] w-full overflow-y-auto overflow-x-hidden bg-white shadow-2xl ${wide ? "max-w-3xl" : "max-w-lg"}`}
+        className={`relative my-auto max-h-[calc(100dvh-2rem)] w-full overflow-y-auto overflow-x-hidden bg-white shadow-2xl ${extraWide ? "max-w-6xl" : wide ? "max-w-3xl" : "max-w-lg"}`}
       >
         <button
           aria-label="关闭"

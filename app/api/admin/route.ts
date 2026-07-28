@@ -40,6 +40,12 @@ export async function GET(request: NextRequest) {
         settings: Object.fromEntries(results.map((x) => [x.key, x.value])),
       });
     }
+    if (resource === "contact") {
+      const { results } = await DB.prepare(
+        "SELECT key,value FROM site_settings WHERE key LIKE 'contact_%'",
+      ).all<{ key: string; value: string }>();
+      return json({ settings: Object.fromEntries(results.map((row) => [row.key, row.value])) });
+    }
     if (resource === "categories") {
       const { results } = await DB.prepare(
         "SELECT * FROM case_categories ORDER BY sort_order,created_at",
@@ -158,6 +164,23 @@ export async function POST(request: NextRequest) {
         )
           .bind(key, String(value ?? ""))
           .run();
+      return json({ ok: true });
+    }
+    if (body.action === "contact") {
+      const values = [
+        ["contact_phone", body.phone], ["contact_email", body.email],
+        ["contact_address_zh", body.addressZh], ["contact_address_en", body.addressEn],
+        ["contact_hours_zh", body.hoursZh], ["contact_hours_en", body.hoursEn],
+        ["contact_map_url", body.mapUrl],
+      ];
+      if (values.some(([, value]) => !String(value ?? "").trim()))
+        return json({ error: "所有联系方式字段均为必填项" }, { status: 400 });
+      if (!/^https:\/\//i.test(String(body.mapUrl)))
+        return json({ error: "地图地址必须是 HTTPS 链接" }, { status: 400 });
+      for (const [key, value] of values)
+        await DB.prepare(
+          "INSERT INTO site_settings(key,value,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP",
+        ).bind(key, String(value).trim()).run();
       return json({ ok: true });
     }
     if (body.action === "service" || body.action === "update-service") {

@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/i18n";
 import { getServiceIcon, localizeService, type ServiceItem } from "@/lib/services";
 import { publicCaseCategories } from "@/lib/case-categories";
+import { phoneHref, type ContactSettings } from "@/lib/contact";
 import { MobileNav } from "./mobile-nav";
 import { LanguageMenu } from "./language-menu";
 import { PageTransition } from "./page-transition";
@@ -39,10 +40,12 @@ export function SiteShell({
   locale,
   children,
   services,
+  contact,
 }: {
   locale: Locale;
   children: React.ReactNode;
   services: ServiceItem[];
+  contact: ContactSettings;
 }) {
   const t = getDictionary(locale);
   const pathname = usePathname();
@@ -235,29 +238,29 @@ export function SiteShell({
               <LanguageMenu locale={locale} tone="dark" />
             </div>
             <a
-              href="tel:8881234567"
+              href={phoneHref(contact.phone)}
               className="hidden items-center gap-2 border-l border-white/15 pl-5 text-xs font-bold text-[#c5b780] md:flex"
             >
               <Phone size={15} />
-              (888) 123-4567
+              {contact.phone}
             </a>
-            <MobileNav locale={locale} services={services} />
+            <MobileNav locale={locale} services={services} contact={contact} />
           </div>
         </div>
       </header>
       <PageTransition>{children}</PageTransition>
-      <Footer locale={locale} services={services} />
+      <Footer locale={locale} services={services} contact={contact} />
     </div>
   );
 }
 
-function Footer({ locale, services }: { locale: Locale; services: ServiceItem[] }) {
+function Footer({ locale, services, contact }: { locale: Locale; services: ServiceItem[]; contact: ContactSettings }) {
   const t = getDictionary(locale);
-  const contact = [
-    [Phone, "(888) 123-4567", "tel:8881234567"],
-    [Mail, "info@yongshengconsulting.com", "mailto:info@yongshengconsulting.com"],
-    [MapPin, "123 Main Street, New York, NY 10001", ""],
-    [Clock3, locale === "zh" ? "周一至周六 9AM–6PM" : "Mon–Sat, 9AM–6PM", ""],
+  const contactItems = [
+    [Phone, contact.phone, phoneHref(contact.phone)],
+    [Mail, contact.email, `mailto:${contact.email}`],
+    [MapPin, locale === "zh" ? contact.address_zh : contact.address_en, ""],
+    [Clock3, locale === "zh" ? contact.hours_zh : contact.hours_en, ""],
   ] as const;
 
   return (
@@ -303,7 +306,7 @@ function Footer({ locale, services }: { locale: Locale; services: ServiceItem[] 
             {locale === "zh" ? "联系我们" : "Contact"}
           </h3>
           <div className="mt-4 grid gap-3 text-sm">
-            {contact.map(([Icon, text, href]) => (
+            {contactItems.map(([Icon, text, href]) => (
               <span className="flex items-start gap-2.5" key={text}>
                 <Icon size={15} className="mt-0.5 shrink-0 text-[#c5b780]" />
                 {href ? (
@@ -324,7 +327,7 @@ function Footer({ locale, services }: { locale: Locale; services: ServiceItem[] 
           <div className="mt-4 overflow-hidden border border-white/10 bg-white/5">
             <iframe
               title="YONG SHENG CONSULTNG location"
-              src="https://www.google.com/maps?q=123%20Main%20Street%2C%20New%20York%2C%20NY%2010001&z=14&output=embed"
+              src={contact.map_url}
               className="h-36 w-full border-0"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"

@@ -8,10 +8,11 @@ import { useEffect, useState } from "react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { localizeService, type ServiceItem } from "@/lib/services";
 import { publicCaseCategories } from "@/lib/case-categories";
+import { phoneHref, type ContactSettings } from "@/lib/contact";
 
 const paths = ["", "/services", "/cases", "/about", "/contact"];
 
-export function MobileNav({ locale, services }: { locale: Locale; services: ServiceItem[] }) {
+export function MobileNav({ locale, services, contact }: { locale: Locale; services: ServiceItem[]; contact: ContactSettings }) {
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [casesOpen, setCasesOpen] = useState(false);
@@ -184,14 +185,14 @@ export function MobileNav({ locale, services }: { locale: Locale; services: Serv
                 })}
                 <div className="border-t border-slate-200 py-4 md:hidden">
                   <a
-                    href="tel:8881234567"
+                    href={phoneHref(contact.phone)}
                     className="pressable flex min-h-12 items-center justify-between bg-[#1a243f] px-4 text-sm font-bold text-white"
                   >
                     <span className="flex items-center gap-2.5">
                       <Phone size={17} className="text-[#c5b780]" />
                       {locale === "zh" ? "电话咨询" : "Call us"}
                     </span>
-                    <span className="text-[#c5b780]">(888) 123-4567</span>
+                    <span className="text-[#c5b780]">{contact.phone}</span>
                   </a>
                 </div>
               </div>
