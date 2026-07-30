@@ -108,6 +108,7 @@ export const serviceIconOptions = [
 export function localizeService(service: ServiceItem, locale: Locale) {
   const zh = locale === "zh";
   const preferred = (primary: string, secondary: string) => primary.trim() || secondary.trim();
+  const normalizeMultiline = (value: string) => value.replace(/\\r\\n|\\n|\\r/g, "\n");
   const config = { ...defaultServiceContentConfig, ...service.content_config };
   const localizedSteps = service.steps
     .map((step) => ({
@@ -125,7 +126,7 @@ export function localizeService(service: ServiceItem, locale: Locale) {
     title: preferred(zh ? service.title_zh : service.title_en, zh ? service.title_en : service.title_zh),
     shortTitle: preferred(zh ? service.short_title_zh : service.short_title_en, zh ? service.short_title_en : service.short_title_zh),
     intro: preferred(zh ? service.intro_zh : service.intro_en, zh ? service.intro_en : service.intro_zh),
-    overview: preferred(zh ? service.overview_zh : service.overview_en, zh ? service.overview_en : service.overview_zh),
+    overview: normalizeMultiline(preferred(zh ? service.overview_zh : service.overview_en, zh ? service.overview_en : service.overview_zh)),
     overviewTitle: preferred(zh ? config.overview_title_zh : config.overview_title_en, zh ? config.overview_title_en : config.overview_title_zh),
     pointsTitle: preferred(zh ? config.points_title_zh : config.points_title_en, zh ? config.points_title_en : config.points_title_zh),
     processTitle: preferred(zh ? config.process_title_zh : config.process_title_en, zh ? config.process_title_en : config.process_title_zh),
