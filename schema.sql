@@ -119,4 +119,10 @@ CREATE TABLE IF NOT EXISTS services (
 );
 CREATE INDEX IF NOT EXISTS idx_services_published_sort ON services(published, sort_order);
 
+CREATE TABLE IF NOT EXISTS service_content_configs (
+  service_id TEXT PRIMARY KEY REFERENCES services(id) ON DELETE CASCADE,
+  content_config_json TEXT NOT NULL DEFAULT '{}',
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Existing service copy is seeded by migrations/0005_services.sql.

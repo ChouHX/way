@@ -55,28 +55,34 @@ export default async function ServiceDetail({
               <ArrowLeft size={16} />
               {zh ? "返回全部服务" : "Back to all services"}
             </Link>
-            <p className="mt-8 text-xs font-bold tracking-[.15em] text-[#8a7d51]">
-              {zh ? "服务概览" : "SERVICE OVERVIEW"}
-            </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-[#1a243f]">
-              {zh ? "先厘清问题，再稳妥推进。" : "Clarity first, then careful action."}
-            </h2>
-            <p className="mt-6 text-base leading-8 text-slate-600">{copy.overview}</p>
+            {copy.showOverview && (copy.overview || copy.overviewTitle) && <>
+              <p className="mt-8 text-xs font-bold tracking-[.15em] text-[#8a7d51]">
+                {zh ? "服务概览" : "SERVICE OVERVIEW"}
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-[#1a243f]">
+                {copy.overviewTitle}
+              </h2>
+              <div className="mt-6 space-y-5 text-base leading-8 text-slate-600">
+                {copy.overview.split(/\n\s*\n/).filter(Boolean).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+              </div>
+            </>}
 
-            <div className="mt-10 border-y border-[#d8d8d8] bg-white px-6 py-7">
+            {copy.showPoints && copy.points.length > 0 && <div className="mt-10 border-y border-[#d8d8d8] bg-white px-6 py-7">
               <h3 className="flex items-center gap-3 font-bold text-[#1a243f]">
                 <FileText size={20} className="text-[#8a7d51]" />
-                {zh ? "我们可以协助的重点" : "How we can help"}
+                {copy.pointsTitle}
               </h3>
               <ul className="mt-5 grid gap-4">
-                {copy.points.map((point) => (
-                  <li key={point} className="flex gap-3 text-sm leading-6 text-slate-600">
+                {copy.points.map((point, index) => {
+                  const separator = point.indexOf("：") >= 0 ? "：" : ":";
+                  const [label, ...details] = point.split(separator);
+                  return <li key={`${point}-${index}`} className="flex gap-3 text-sm leading-6 text-slate-600">
                     <Check size={17} className="mt-1 shrink-0 text-[#8a7d51]" />
-                    {point}
-                  </li>
-                ))}
+                    <span>{details.length ? <><strong className="font-bold text-[#1a243f]">{label}</strong>{separator}{details.join(separator)}</> : point}</span>
+                  </li>;
+                })}
               </ul>
-            </div>
+            </div>}
           </div>
 
           <aside className="self-start bg-[#1a243f] p-7 text-white lg:sticky lg:top-24">
@@ -104,17 +110,17 @@ export default async function ServiceDetail({
           </aside>
         </section>
 
-        <section className="border-y border-[#dedede] bg-white">
+        {copy.showProcess && copy.steps.length > 0 && <section className="border-y border-[#dedede] bg-white">
           <div className="mx-auto max-w-6xl px-5 py-16">
             <p className="text-xs font-bold tracking-[.15em] text-[#8a7d51]">
               {zh ? "一般流程" : "OUR PROCESS"}
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-[#1a243f]">
-              {zh ? "清晰的三个步骤" : "Three clear steps"}
+              {copy.processTitle}
             </h2>
-            <div className="mt-10 grid gap-px border border-[#dedede] bg-[#dedede] md:grid-cols-3">
+            <div className="mt-10 grid gap-px border border-[#dedede] bg-[#dedede]" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))" }}>
               {copy.steps.map((step, index) => (
-                <article key={step.title} className="bg-white p-6">
+                <article key={`${step.title}-${index}`} className="bg-white p-6">
                   <span className="text-xs font-bold text-[#8a7d51]">
                     {String(index + 1).padStart(2, "0")}
                   </span>
@@ -124,7 +130,7 @@ export default async function ServiceDetail({
               ))}
             </div>
           </div>
-        </section>
+        </section>}
 
         <section className="mx-auto max-w-6xl px-5 py-16">
           <div className="flex items-end justify-between gap-4">

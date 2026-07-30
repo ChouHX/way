@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     }
     if (resource === "services") {
       const { results } = await DB.prepare(
-        "SELECT * FROM services ORDER BY sort_order,created_at",
+        "SELECT s.*,c.content_config_json FROM services s LEFT JOIN service_content_configs c ON c.service_id=s.id ORDER BY s.sort_order,s.created_at",
       ).all();
       return json({ services: results });
     }
@@ -184,27 +184,38 @@ export async function POST(request: NextRequest) {
       return json({ ok: true });
     }
     if (body.action === "service" || body.action === "update-service") {
-      const required = [
-        "slug", "titleZh", "titleEn", "shortTitleZh", "shortTitleEn",
-        "introZh", "introEn", "overviewZh", "overviewEn",
-      ];
-      if (required.some((key) => !String(body[key] ?? "").trim()))
-        return json({ error: "服务标识及中英文文案均为必填项" }, { status: 400 });
+      if (!String(body.slug ?? "").trim() || (!String(body.titleZh ?? "").trim() && !String(body.titleEn ?? "").trim()))
+        return json({ error: "URL 标识和至少一种语言的服务标题为必填项" }, { status: 400 });
       const slug = String(body.slug).trim().toLowerCase();
       if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
         return json({ error: "URL 标识只能使用小写字母、数字和连字符" }, { status: 400 });
       const pointsZh = Array.isArray(body.pointsZh) ? body.pointsZh.map(String).filter(Boolean) : [];
       const pointsEn = Array.isArray(body.pointsEn) ? body.pointsEn.map(String).filter(Boolean) : [];
       const steps = Array.isArray(body.steps) ? body.steps : [];
-      if (!pointsZh.length || !pointsEn.length || !steps.length)
-        return json({ error: "服务要点和服务流程不能为空" }, { status: 400 });
       if (!validImage(String(body.imageUrl ?? "")))
         return json({ error: "图片格式无效或压缩后超过 450 KB" }, { status: 413 });
+      const contentConfig = body.contentConfig && typeof body.contentConfig === "object" ? body.contentConfig as Record<string, unknown> : {};
+      const localized = (key: string) => String(contentConfig[key] ?? "").trim();
+      const config = {
+        overview_title_zh: localized("overview_title_zh"),
+        overview_title_en: localized("overview_title_en"),
+        points_title_zh: localized("points_title_zh"),
+        points_title_en: localized("points_title_en"),
+        process_title_zh: localized("process_title_zh"),
+        process_title_en: localized("process_title_en"),
+        show_overview: contentConfig.show_overview !== false,
+        show_points: contentConfig.show_points !== false,
+        show_process: contentConfig.show_process !== false,
+      };
+      const titleZh = String(body.titleZh ?? "").trim();
+      const titleEn = String(body.titleEn ?? "").trim();
+      const shortTitleZh = String(body.shortTitleZh ?? "").trim() || titleZh;
+      const shortTitleEn = String(body.shortTitleEn ?? "").trim() || titleEn;
       const id = String(body.id || crypto.randomUUID());
       const values = [
-        slug, String(body.iconKey || "ticket"), String(body.titleZh), String(body.titleEn),
-        String(body.shortTitleZh), String(body.shortTitleEn), String(body.introZh), String(body.introEn),
-        String(body.overviewZh), String(body.overviewEn), JSON.stringify(pointsZh), JSON.stringify(pointsEn),
+        slug, String(body.iconKey || "ticket"), titleZh, titleEn,
+        shortTitleZh, shortTitleEn, String(body.introZh ?? ""), String(body.introEn ?? ""),
+        String(body.overviewZh ?? ""), String(body.overviewEn ?? ""), JSON.stringify(pointsZh), JSON.stringify(pointsEn),
         JSON.stringify(steps), String(body.imageUrl ?? ""), Number(body.sortOrder ?? 0),
         body.published === false ? 0 : 1,
       ];
@@ -214,9 +225,12 @@ export async function POST(request: NextRequest) {
       else
         await DB.prepare("UPDATE services SET slug=?,icon_key=?,title_zh=?,title_en=?,short_title_zh=?,short_title_en=?,intro_zh=?,intro_en=?,overview_zh=?,overview_en=?,points_zh=?,points_en=?,steps_json=?,image_url=?,sort_order=?,published=?,updated_at=CURRENT_TIMESTAMP WHERE id=?")
           .bind(...values, id).run();
+      await DB.prepare("INSERT INTO service_content_configs(service_id,content_config_json,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(service_id) DO UPDATE SET content_config_json=excluded.content_config_json,updated_at=CURRENT_TIMESTAMP")
+        .bind(id, JSON.stringify(config)).run();
       return json({ ok: true, id });
     }
     if (body.action === "delete-service") {
+      await DB.prepare("DELETE FROM service_content_configs WHERE service_id=?").bind(String(body.id)).run();
       await DB.prepare("DELETE FROM services WHERE id=?").bind(String(body.id)).run();
       return json({ ok: true });
     }

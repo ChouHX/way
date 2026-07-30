@@ -1,6 +1,11 @@
 import { getWorkerEnv } from "@/lib/cloudflare";
 import { unstable_noStore as noStore } from "next/cache";
-import type { ServiceItem, ServiceStep } from "@/lib/services";
+import {
+  defaultServiceContentConfig,
+  type ServiceContentConfig,
+  type ServiceItem,
+  type ServiceStep,
+} from "@/lib/services";
 import type { ContactSettings } from "@/lib/contact";
 
 export type Taxonomy = {
@@ -78,10 +83,11 @@ async function rows<T>(query: string, ...bindings: unknown[]) {
   }
 }
 
-type ServiceRow = Omit<ServiceItem, "points_zh" | "points_en" | "steps"> & {
+type ServiceRow = Omit<ServiceItem, "points_zh" | "points_en" | "steps" | "content_config"> & {
   points_zh: string;
   points_en: string;
   steps_json: string;
+  content_config_json?: string;
 };
 
 function parseJson<T>(value: string, fallback: T): T {
@@ -98,19 +104,23 @@ function mapService(row: ServiceRow): ServiceItem {
     points_zh: parseJson<string[]>(row.points_zh, []),
     points_en: parseJson<string[]>(row.points_en, []),
     steps: parseJson<ServiceStep[]>(row.steps_json, []),
+    content_config: {
+      ...defaultServiceContentConfig,
+      ...parseJson<Partial<ServiceContentConfig>>(row.content_config_json || "", {}),
+    },
   };
 }
 
 export async function getPublicServices(): Promise<ServiceItem[]> {
   const result = await rows<ServiceRow>(
-    "SELECT * FROM services WHERE published=1 ORDER BY sort_order,created_at",
+    "SELECT s.*,c.content_config_json FROM services s LEFT JOIN service_content_configs c ON c.service_id=s.id WHERE s.published=1 ORDER BY s.sort_order,s.created_at",
   );
   return result.map(mapService);
 }
 
 export async function getPublicService(slug: string): Promise<ServiceItem | undefined> {
   const result = await rows<ServiceRow>(
-    "SELECT * FROM services WHERE slug=? AND published=1 LIMIT 1",
+    "SELECT s.*,c.content_config_json FROM services s LEFT JOIN service_content_configs c ON c.service_id=s.id WHERE s.slug=? AND s.published=1 LIMIT 1",
     slug,
   );
   return result[0] ? mapService(result[0]) : undefined;

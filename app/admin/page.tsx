@@ -23,7 +23,13 @@ import {
   X,
 } from "lucide-react";
 import { Badge, Button, Card, Select } from "@/components/ui";
-import { getServiceIcon, serviceIconOptions, type ServiceStep } from "@/lib/services";
+import {
+  defaultServiceContentConfig,
+  getServiceIcon,
+  serviceIconOptions,
+  type ServiceContentConfig,
+  type ServiceStep,
+} from "@/lib/services";
 
 type Category = {
   id: string;
@@ -87,6 +93,7 @@ type AdminService = {
   points_zh: string;
   points_en: string;
   steps_json: string;
+  content_config_json?: string;
   image_url: string;
   sort_order: number;
   published: number;
@@ -625,11 +632,13 @@ type ServicePoint = { zh: string; en: string };
 function ServiceEditor({ item, loading, close, save }: { item?: AdminService; loading: boolean; close: () => void; save: (body: object) => Promise<void> }) {
   const initialPointsZh = parseAdminJson<string[]>(item?.points_zh || "[]", []);
   const initialPointsEn = parseAdminJson<string[]>(item?.points_en || "[]", []);
-  const initialCount = Math.max(initialPointsZh.length, initialPointsEn.length, 1);
+  const initialCount = Math.max(initialPointsZh.length, initialPointsEn.length);
+  const initialConfig = { ...defaultServiceContentConfig, ...parseAdminJson<Partial<ServiceContentConfig>>(item?.content_config_json || "", {}) };
   const [iconKey, setIconKey] = useState(item?.icon_key || "ticket");
   const [image, setImage] = useState(item?.image_url || "");
   const [previewTitle, setPreviewTitle] = useState(item?.title_zh || "");
   const [previewIntro, setPreviewIntro] = useState(item?.intro_zh || "");
+  const [contentConfig, setContentConfig] = useState<ServiceContentConfig>(initialConfig);
   const [points, setPoints] = useState<ServicePoint[]>(Array.from({ length: initialCount }, (_, index) => ({ zh: initialPointsZh[index] || "", en: initialPointsEn[index] || "" })));
   const [steps, setSteps] = useState<ServiceStep[]>(() => {
     const saved = parseAdminJson<ServiceStep[]>(item?.steps_json || "[]", []);
@@ -655,36 +664,67 @@ function ServiceEditor({ item, loading, close, save }: { item?: AdminService; lo
             overviewZh: form.get("overviewZh"), overviewEn: form.get("overviewEn"),
             pointsZh: points.map((point) => point.zh.trim()).filter(Boolean),
             pointsEn: points.map((point) => point.en.trim()).filter(Boolean),
-            steps, imageUrl: image, sortOrder: Number(form.get("sortOrder")), published: form.get("published") === "1",
+            steps, contentConfig, imageUrl: image, sortOrder: Number(form.get("sortOrder")), published: form.get("published") === "1",
           });
         } catch (cause) { setError(cause instanceof Error ? cause.message : "保存失败"); }
       }}>
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
           <div><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">SERVICE EDITOR</p><h2 className="mt-1 text-lg font-bold text-[#0f2747]">{item ? "编辑服务项目" : "新增服务项目"}</h2></div>
-          <span className="mr-9 text-xs text-slate-500">中英文内容将同步展示在前台</span>
+          <span className="mr-9 text-xs text-slate-500">中英文可独立维护，空缺时自动使用另一语言</span>
         </header>
         <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_19rem]">
           <fieldset disabled={loading} className="min-w-0 space-y-7 p-6">
             <EditorSection number="01" title="基础信息" text="用于生成服务页面、导航和排序。">
-              <div className="grid gap-3 sm:grid-cols-2"><Field name="titleZh" label="中文标题" value={previewTitle} onChange={(event) => setPreviewTitle(event.target.value)} required /><Field name="titleEn" label="English title" defaultValue={item?.title_en} required /><Field name="shortTitleZh" label="中文短标题" defaultValue={item?.short_title_zh} required /><Field name="shortTitleEn" label="English short title" defaultValue={item?.short_title_en} required /><Field name="slug" label="URL 标识" defaultValue={item?.slug} placeholder="traffic-tickets" required /><div className="grid grid-cols-2 gap-3"><Field name="sortOrder" type="number" label="排序" defaultValue={item?.sort_order || 0} /><label className="grid gap-1.5 text-xs font-bold"><span>状态</span><Select name="published" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label></div></div>
+              <div className="grid gap-3 sm:grid-cols-2"><Field name="titleZh" label="中文标题" value={previewTitle} onChange={(event) => setPreviewTitle(event.target.value)} /><Field name="titleEn" label="English title" defaultValue={item?.title_en} /><Field name="shortTitleZh" label="中文短标题" defaultValue={item?.short_title_zh} /><Field name="shortTitleEn" label="English short title" defaultValue={item?.short_title_en} /><Field name="slug" label="URL 标识" defaultValue={item?.slug} placeholder="traffic-tickets" required /><div className="grid grid-cols-2 gap-3"><Field name="sortOrder" type="number" label="排序" defaultValue={item?.sort_order || 0} /><label className="grid gap-1.5 text-xs font-bold"><span>状态</span><Select name="published" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label></div></div>
             </EditorSection>
             <EditorSection number="02" title="服务图标" text="选择后会立即反映在右侧预览和前台卡片中。">
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">{serviceIconOptions.map(([value, label]) => { const Icon = getServiceIcon(value); const selected = value === iconKey; return <button key={value} title={label} type="button" onClick={() => setIconKey(value)} className={`group grid min-h-20 place-items-center border p-2 text-center transition-[border-color,background-color,color,transform] duration-150 ease-out active:scale-[.97] ${selected ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100" : "border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-[#0f2747]"}`}><Icon size={21} /><span className="mt-1 text-[10px] font-bold leading-3">{label}</span></button>; })}</div>
             </EditorSection>
             <EditorSection number="03" title="页面文案" text="列表页使用简介；详情页使用服务概览。">
-              <div className="grid gap-3 sm:grid-cols-2"><Area name="introZh" label="中文简介" value={previewIntro} onChange={(event) => setPreviewIntro(event.target.value)} required /><Area name="introEn" label="English intro" defaultValue={item?.intro_en} required /><Area name="overviewZh" label="中文服务概览" defaultValue={item?.overview_zh} required /><Area name="overviewEn" label="English overview" defaultValue={item?.overview_en} required /></div>
+              <div className="grid gap-3 sm:grid-cols-2"><Area name="introZh" label="中文简介" value={previewIntro} onChange={(event) => setPreviewIntro(event.target.value)} /><Area name="introEn" label="English intro" defaultValue={item?.intro_en} /><Area name="overviewZh" label="中文服务概览" defaultValue={item?.overview_zh} /><Area name="overviewEn" label="English overview" defaultValue={item?.overview_en} /></div>
             </EditorSection>
-            <EditorSection number="04" title="服务要点" text="每项要点可单独调整顺序或删除。">
+            <EditorSection number="04" title="详情页区块" text="自定义区块标题，并决定哪些内容在详情页展示。">
+              <div className="grid gap-3">
+                {([
+                  ["show_overview", "概览区块", "overview_title_zh", "overview_title_en"],
+                  ["show_points", "服务要点区块", "points_title_zh", "points_title_en"],
+                  ["show_process", "处理流程区块", "process_title_zh", "process_title_en"],
+                ] as const).map(([visibleKey, label, zhKey, enKey]) => (
+                  <div key={visibleKey} className="border border-slate-200 bg-slate-50 p-3">
+                    <label className="flex items-center gap-2 text-xs font-bold text-[#0f2747]"><input type="checkbox" checked={contentConfig[visibleKey]} onChange={(event) => setContentConfig((current) => ({ ...current, [visibleKey]: event.target.checked }))} className="h-4 w-4 accent-blue-600" />{label}显示</label>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2"><Field label="中文区块标题" value={contentConfig[zhKey]} onChange={(event) => setContentConfig((current) => ({ ...current, [zhKey]: event.target.value }))} /><Field label="English section title" value={contentConfig[enKey]} onChange={(event) => setContentConfig((current) => ({ ...current, [enKey]: event.target.value }))} /></div>
+                  </div>
+                ))}
+              </div>
+            </EditorSection>
+            <EditorSection number="05" title="服务要点" text="每项要点可单独调整顺序、删除；中英文可以分别留空。">
               <div className="space-y-2">{points.map((point, index) => <div key={index} className="grid gap-2 border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[auto_1fr_1fr_auto]"><span className="flex items-center text-slate-400"><GripVertical size={16} /><b className="text-xs">{String(index + 1).padStart(2, "0")}</b></span><input aria-label={`第 ${index + 1} 项中文要点`} value={point.zh} onChange={(event) => updatePoint(index, "zh", event.target.value)} placeholder="中文服务要点" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><input aria-label={`Key point ${index + 1} in English`} value={point.en} onChange={(event) => updatePoint(index, "en", event.target.value)} placeholder="English key point" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><ItemControls index={index} count={points.length} disabled={loading} up={() => setPoints((current) => moveItem(current, index, -1))} down={() => setPoints((current) => moveItem(current, index, 1))} remove={() => setPoints((current) => current.filter((_, i) => i !== index))} /></div>)}</div>
               <AddInline label="增加服务要点" onClick={() => setPoints((current) => [...current, { zh: "", en: "" }])} />
             </EditorSection>
-            <EditorSection number="05" title="服务流程" text="步骤数量不设限制；可任意增加、删除和排序。">
-              <div className="space-y-3">{steps.map((step, index) => <article key={index} className="border border-slate-200 bg-slate-50"><div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2"><span className="flex items-center gap-1.5 text-xs font-bold text-[#0f2747]"><GripVertical size={16} className="text-slate-400" />步骤 {String(index + 1).padStart(2, "0")}</span><ItemControls index={index} count={steps.length} disabled={loading} up={() => setSteps((current) => moveItem(current, index, -1))} down={() => setSteps((current) => moveItem(current, index, 1))} remove={() => setSteps((current) => current.filter((_, i) => i !== index))} /></div><div className="grid gap-3 p-3 sm:grid-cols-2"><Field label="中文标题" value={step.title_zh} onChange={(event) => updateStep(index, "title_zh", event.target.value)} required /><Field label="English title" value={step.title_en} onChange={(event) => updateStep(index, "title_en", event.target.value)} required /><Area label="中文说明" value={step.description_zh} onChange={(event) => updateStep(index, "description_zh", event.target.value)} required /><Area label="English description" value={step.description_en} onChange={(event) => updateStep(index, "description_en", event.target.value)} required /></div></article>)}</div>
+            <EditorSection number="06" title="服务流程" text="步骤数量不设限制；可任意增加、删除和排序。">
+              <div className="space-y-3">{steps.map((step, index) => <article key={index} className="border border-slate-200 bg-slate-50"><div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2"><span className="flex items-center gap-1.5 text-xs font-bold text-[#0f2747]"><GripVertical size={16} className="text-slate-400" />步骤 {String(index + 1).padStart(2, "0")}</span><ItemControls index={index} count={steps.length} disabled={loading} up={() => setSteps((current) => moveItem(current, index, -1))} down={() => setSteps((current) => moveItem(current, index, 1))} remove={() => setSteps((current) => current.filter((_, i) => i !== index))} /></div><div className="grid gap-3 p-3 sm:grid-cols-2"><Field label="中文标题" value={step.title_zh} onChange={(event) => updateStep(index, "title_zh", event.target.value)} /><Field label="English title" value={step.title_en} onChange={(event) => updateStep(index, "title_en", event.target.value)} /><Area label="中文说明" value={step.description_zh} onChange={(event) => updateStep(index, "description_zh", event.target.value)} /><Area label="English description" value={step.description_en} onChange={(event) => updateStep(index, "description_en", event.target.value)} /></div></article>)}</div>
               <AddInline label="增加流程步骤" onClick={() => setSteps((current) => [...current, { title_zh: "", title_en: "", description_zh: "", description_en: "" }])} />
             </EditorSection>
-            <EditorSection number="06" title="服务图片" text="支持上传图片或填写 HTTPS 图片地址。"><div className="flex flex-wrap items-center gap-3 border border-dashed border-slate-300 bg-slate-50 p-3">{image ? <img src={image} className="h-20 w-32 object-cover" alt="" /> : <span className="grid h-20 w-32 place-items-center bg-white text-slate-400"><ImagePlus size={20} /></span>}<label className="cursor-pointer border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:border-blue-300"><input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; try { setImage(await compressImage(file)); } catch (cause) { setError(cause instanceof Error ? cause.message : "图片处理失败"); } }} />{image ? "替换图片" : "选择图片"}</label><input value={image.startsWith("data:") ? "" : image} onChange={(event) => setImage(event.target.value)} placeholder="https://example.com/service-image.jpg" className="min-w-[14rem] flex-1 border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /></div></EditorSection>
+            <EditorSection number="07" title="服务图片" text="支持上传图片或填写 HTTPS 图片地址。"><div className="flex flex-wrap items-center gap-3 border border-dashed border-slate-300 bg-slate-50 p-3">{image ? <img src={image} className="h-20 w-32 object-cover" alt="" /> : <span className="grid h-20 w-32 place-items-center bg-white text-slate-400"><ImagePlus size={20} /></span>}<label className="cursor-pointer border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:border-blue-300"><input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; try { setImage(await compressImage(file)); } catch (cause) { setError(cause instanceof Error ? cause.message : "图片处理失败"); } }} />{image ? "替换图片" : "选择图片"}</label><input value={image.startsWith("data:") ? "" : image} onChange={(event) => setImage(event.target.value)} placeholder="https://example.com/service-image.jpg" className="min-w-[14rem] flex-1 border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /></div></EditorSection>
           </fieldset>
-          <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:border-l lg:border-t-0"><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">LIVE PREVIEW</p><p className="mt-1 text-sm font-bold text-[#0f2747]">服务卡片预览</p><div className="mt-4 overflow-hidden border border-slate-200 bg-white shadow-sm">{image ? <img src={image} alt="" className="h-32 w-full object-cover" /> : <div className="grid h-32 place-items-center bg-[#1a243f] text-white/50"><ImagePlus size={22} /></div>}<div className="p-4"><span className="grid h-10 w-10 place-items-center bg-[#f4f1e8] text-[#8a7d51]"><SelectedIcon size={21} /></span><p className="mt-4 text-lg font-bold text-[#1a243f]">{previewTitle || "服务中文标题"}</p><p className="mt-2 text-xs leading-5 text-slate-500">{previewIntro || "填写中文简介后，将在此显示服务卡片摘要。"}</p></div></div><p className="mt-5 text-xs leading-5 text-slate-500">预览展示图标、图片和中文文案效果。保存后前台将显示最新内容。</p></aside>
+          <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+            <p className="text-[10px] font-bold tracking-[.14em] text-blue-600">LIVE PREVIEW</p>
+            <p className="mt-1 text-sm font-bold text-[#0f2747]">服务卡片预览</p>
+            <div className="mt-4 overflow-hidden border border-slate-200 bg-white shadow-sm">
+              {image ? <img src={image} alt="" className="h-32 w-full object-cover" /> : <div className="grid h-32 place-items-center bg-[#1a243f] text-white/50"><ImagePlus size={22} /></div>}
+              <div className="p-4"><span className="grid h-10 w-10 place-items-center bg-[#f4f1e8] text-[#8a7d51]"><SelectedIcon size={21} /></span><p className="mt-4 text-lg font-bold text-[#1a243f]">{previewTitle || "服务中文标题"}</p><p className="mt-2 text-xs leading-5 text-slate-500">{previewIntro || "填写中文简介后，将在此显示服务卡片摘要。"}</p></div>
+            </div>
+            <div className="mt-5 border border-slate-200 bg-white p-4">
+              <p className="text-[10px] font-bold tracking-[.12em] text-slate-400">详情页结构</p>
+              <div className="mt-3 divide-y divide-slate-100">
+                {([
+                  [contentConfig.show_overview, contentConfig.overview_title_zh || "概览区块", "正文"],
+                  [contentConfig.show_points, contentConfig.points_title_zh || "服务要点", `${points.filter((point) => point.zh.trim()).length} 项`],
+                  [contentConfig.show_process, contentConfig.process_title_zh || "处理流程", `${steps.filter((step) => step.title_zh.trim() || step.description_zh.trim()).length} 步`],
+                ] as const).map(([visible, title, meta], index) => <div key={index} className="flex items-center justify-between gap-3 py-2.5 text-xs"><span className={visible ? "font-bold text-[#0f2747]" : "text-slate-400 line-through"}>{title}</span><span className={visible ? "shrink-0 text-slate-500" : "shrink-0 text-slate-400"}>{visible ? meta : "已隐藏"}</span></div>)}
+              </div>
+            </div>
+          </aside>
         </div>
         {error && <p className="mx-6 mb-4 border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
         <footer className="sticky bottom-0 flex justify-end gap-2 border-t border-slate-200 bg-white px-6 py-4"><button type="button" disabled={loading} onClick={close} className="border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 disabled:opacity-50">取消</button><Button disabled={loading} className="min-w-28 py-2 text-xs">{loading ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{loading ? "保存中…" : "保存服务"}</Button></footer>
@@ -694,7 +734,7 @@ function ServiceEditor({ item, loading, close, save }: { item?: AdminService; lo
 }
 function EditorSection({ number, title, text, children }: { number: string; title: string; text: string; children: React.ReactNode }) { return <section className="border-b border-slate-200 pb-7 last:border-b-0 last:pb-0"><div className="mb-4 flex gap-3"><span className="pt-0.5 text-xs font-bold text-blue-600">{number}</span><div><h3 className="text-sm font-bold text-[#0f2747]">{title}</h3><p className="mt-0.5 text-xs text-slate-500">{text}</p></div></div>{children}</section>; }
 function AddInline({ label, onClick }: { label: string; onClick: () => void }) { return <button type="button" onClick={onClick} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 transition-colors hover:text-blue-900 active:scale-[.97]"><Plus size={15} />{label}</button>; }
-function ItemControls({ index, count, disabled, up, down, remove }: { index: number; count: number; disabled: boolean; up: () => void; down: () => void; remove: () => void }) { return <div className="flex items-center justify-end gap-1"><button type="button" title="上移" aria-label="上移" disabled={disabled || index === 0} onClick={up} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronUp size={14} /></button><button type="button" title="下移" aria-label="下移" disabled={disabled || index === count - 1} onClick={down} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronDown size={14} /></button><button type="button" title="删除" aria-label="删除" disabled={disabled || count <= 1} onClick={remove} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></div>; }
+function ItemControls({ index, count, disabled, up, down, remove }: { index: number; count: number; disabled: boolean; up: () => void; down: () => void; remove: () => void }) { return <div className="flex items-center justify-end gap-1"><button type="button" title="上移" aria-label="上移" disabled={disabled || index === 0} onClick={up} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronUp size={14} /></button><button type="button" title="下移" aria-label="下移" disabled={disabled || index === count - 1} onClick={down} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronDown size={14} /></button><button type="button" title="删除" aria-label="删除" disabled={disabled} onClick={remove} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></div>; }
 function TaxonomyPanel({
   categories,
   types,
