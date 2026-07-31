@@ -148,7 +148,7 @@ export default function AdminPage() {
     [status, setStatus] = useState("正在检查登录状态…"),
     [busy, setBusy] = useState<string | null>("正在加载后台数据"),
     [section, setSection] = useState<Section>("site"),
-    [site, setSite] = useState({ titleZh: "", titleEn: "" }),
+    [site, setSite] = useState({ titleZh: "", titleEn: "", logoUrl: "/logo-transparent.png" }),
     [contact, setContact] = useState<ContactFormData>({ phone: "", email: "", addressZh: "", addressEn: "", hoursZh: "", hoursEn: "", mapUrl: "" }),
     [categories, setCategories] = useState<Category[]>([]),
     [types, setTypes] = useState<CaseType[]>([]),
@@ -178,6 +178,7 @@ export default function AdminPage() {
       setSite({
         titleZh: s.settings.title_zh || "",
         titleEn: s.settings.title_en || "",
+        logoUrl: s.settings.logo_url || "/logo-transparent.png",
       });
       setContact({
         phone: contactData.settings.contact_phone || "",
@@ -232,8 +233,8 @@ export default function AdminPage() {
     setStatus(message);
   };
   return (
-    <main className="min-h-screen bg-[#f5f5f7] text-slate-900">
-      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+    <main className="admin-shell min-h-screen bg-[#f5f5f7] text-slate-900">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-2.5">
             <img
@@ -290,7 +291,7 @@ export default function AdminPage() {
       </header>
       {busy && <AdminProgress label={busy} />}
       <div
-        className="mx-auto max-w-[1280px] px-4 py-5 sm:px-6"
+        className="mx-auto max-w-[1240px] px-4 py-4 sm:px-5"
         aria-busy={Boolean(busy)}
       >
         {auth === "signed-out" ? (
@@ -302,7 +303,7 @@ export default function AdminPage() {
           </Card>
         ) : (
           <>
-            <nav className="flex gap-5 border-b border-slate-200">
+            <nav className="flex gap-1 overflow-x-auto border-b border-slate-200">
               {[
                 ["site", Settings2, "站点管理"],
                 ["contact", ContactRound, "联系方式"],
@@ -314,7 +315,7 @@ export default function AdminPage() {
                   key={id as string}
                   disabled={Boolean(busy)}
                   onClick={() => setSection(id as Section)}
-                  className={`relative inline-flex items-center gap-1.5 pb-3 text-[13px] font-bold disabled:cursor-wait disabled:opacity-60 ${section === id ? "text-[#0f2747] after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-blue-600" : "text-slate-500 hover:text-[#0f2747]"}`}
+                  className={`relative inline-flex shrink-0 items-center gap-1.5 px-3 py-2.5 text-xs font-bold transition-colors active:bg-slate-100 disabled:cursor-wait disabled:opacity-60 ${section === id ? "text-[#0f2747] after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:bg-blue-600" : "text-slate-500 hover:text-[#0f2747]"}`}
                 >
                   <Icon size={16} />
                   {label as string}
@@ -471,38 +472,51 @@ function SitePanel({
   loading,
   save,
 }: {
-  site: { titleZh: string; titleEn: string };
+  site: { titleZh: string; titleEn: string; logoUrl: string };
   setSite: React.Dispatch<
-    React.SetStateAction<{ titleZh: string; titleEn: string }>
+    React.SetStateAction<{ titleZh: string; titleEn: string; logoUrl: string }>
   >;
   loading: boolean;
   save: (e: FormEvent) => void;
 }) {
+  const [logoError, setLogoError] = useState("");
   return (
-    <section className="max-w-xl py-5">
+    <section className="max-w-3xl py-5">
       <Heading
         eyebrow="SITE SETTINGS"
         title="站点管理"
-        text="维护中英文站点标题。"
+        text="维护中英文站点标题与网站品牌 LOGO。"
       />
-      <Card className="mt-4 p-5">
-        <form className="grid gap-3" onSubmit={save}>
-          <Field
-            label="中文标题"
-            value={site.titleZh}
-            disabled={loading}
-            onChange={(e) =>
-              setSite((x) => ({ ...x, titleZh: e.target.value }))
-            }
-          />
-          <Field
-            label="English title"
-            value={site.titleEn}
-            disabled={loading}
-            onChange={(e) =>
-              setSite((x) => ({ ...x, titleEn: e.target.value }))
-            }
-          />
+      <form className="mt-4 grid gap-3" onSubmit={save}>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><Settings2 size={17} className="text-blue-600" /><h3 className="text-sm font-bold text-[#0f2747]">站点标题</h3></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <Field label="中文标题" value={site.titleZh} disabled={loading} onChange={(e) => setSite((x) => ({ ...x, titleZh: e.target.value }))} />
+            <Field label="English title" value={site.titleEn} disabled={loading} onChange={(e) => setSite((x) => ({ ...x, titleEn: e.target.value }))} />
+          </div>
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><ImagePlus size={17} className="text-blue-600" /><div><h3 className="text-sm font-bold text-[#0f2747]">品牌 LOGO</h3><p className="mt-0.5 text-[11px] text-slate-500">用于网站深色页头；默认使用原始 PNG。</p></div></div>
+          <div className="mt-4 grid gap-4 md:grid-cols-[14rem_1fr]">
+            <div className="grid grid-cols-2 overflow-hidden rounded-lg border border-slate-200">
+              <div className="grid min-h-28 place-items-center bg-[#1a243f] p-4"><img src={site.logoUrl || "/logo-transparent.png"} alt="深色背景 LOGO 预览" className="h-16 w-20 object-contain" /></div>
+              <div className="grid min-h-28 place-items-center bg-white p-4"><img src={site.logoUrl || "/logo-transparent.png"} alt="浅色背景 LOGO 预览" className="h-16 w-20 object-contain" /></div>
+            </div>
+            <div className="grid content-start gap-3">
+              <Field label="图片地址" value={site.logoUrl} disabled={loading} placeholder="/logo-transparent.png 或 https://..." onChange={(event) => setSite((current) => ({ ...current, logoUrl: event.target.value }))} />
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="cursor-pointer rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:border-blue-300">
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={loading} onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; setLogoError(""); try { const logoUrl = await compressImage(file); setSite((current) => ({ ...current, logoUrl })); } catch (cause) { setLogoError(cause instanceof Error ? cause.message : "LOGO 处理失败"); } finally { event.target.value = ""; } }} />
+                  上传新 LOGO
+                </label>
+                <button type="button" disabled={loading || site.logoUrl === "/logo-transparent.png"} onClick={() => setSite((current) => ({ ...current, logoUrl: "/logo-transparent.png" }))} className="rounded-md px-3 py-2 text-xs font-bold text-slate-600 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40">恢复默认 PNG</button>
+                <span className="text-[10px] text-slate-400">PNG、JPG 或 WebP，保存前自动压缩至 450 KB 内</span>
+              </div>
+              {logoError && <p className="rounded-md bg-red-50 px-3 py-2 text-[11px] text-red-700" role="alert">{logoError}</p>}
+            </div>
+          </div>
+        </Card>
+        <div>
           <Button disabled={loading} className="w-fit py-2.5 text-xs">
             {loading ? (
               <LoaderCircle size={15} className="animate-spin" />
@@ -511,8 +525,8 @@ function SitePanel({
             )}
             {loading ? "正在保存…" : "保存"}
           </Button>
-        </form>
-      </Card>
+        </div>
+      </form>
     </section>
   );
 }
@@ -554,25 +568,25 @@ function ServicesPanel({ services, loading, save }: {
 }) {
   const [dialog, setDialog] = useState<{ mode: "create" | "edit" | "delete"; item?: AdminService } | null>(null);
   return (
-    <section className="py-5">
+    <section className="py-4">
       <div className="flex items-end justify-between gap-4">
         <Heading eyebrow="SERVICES" title="服务项目管理" text="配置前台服务项目的中英文文案、图片、排序和发布状态。" />
-        <Button disabled={loading} className="shrink-0 px-4 py-2.5 text-xs" onClick={() => setDialog({ mode: "create" })}>
+        <Button disabled={loading} className="shrink-0 px-3.5 py-2 text-xs" onClick={() => setDialog({ mode: "create" })}>
           <Plus size={15} />新增服务
         </Button>
       </div>
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-3 overflow-hidden rounded-xl shadow-none">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-xs">
-            <thead className="border-b bg-slate-50 text-[10px] text-slate-500"><tr><th className="px-4 py-3">服务项目</th><th className="px-4 py-3">URL 标识</th><th className="px-4 py-3">排序</th><th className="px-4 py-3">状态</th><th className="px-4 py-3 text-right">操作</th></tr></thead>
+          <table className="w-full min-w-[700px] text-left text-xs">
+            <thead className="border-b bg-slate-50 text-[10px] text-slate-500"><tr><th className="px-3 py-2.5">服务项目</th><th className="px-3 py-2.5">URL 标识</th><th className="px-3 py-2.5">排序</th><th className="px-3 py-2.5">状态</th><th className="px-3 py-2.5 text-right">操作</th></tr></thead>
             <tbody className="divide-y divide-slate-100">
               {services.map((item) => (
-                <tr key={item.id} className="hover:bg-blue-50/30">
-                  <td className="max-w-[360px] px-4 py-3"><b className="block text-[#0f2747]">{item.title_zh}</b><span className="mt-1 block line-clamp-1 text-[11px] text-slate-500">{item.title_en}</span></td>
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-500">{item.slug}</td>
-                  <td className="px-4 py-3 text-slate-600">{item.sort_order}</td>
-                  <td className="px-4 py-3"><span className={item.published ? "text-emerald-700" : "text-slate-400"}>{item.published ? "已发布" : "草稿"}</span></td>
-                  <td className="px-4 py-3"><div className="flex justify-end gap-1"><Icon onClick={() => setDialog({ mode: "edit", item })}><Pencil size={14} /></Icon><Icon onClick={() => setDialog({ mode: "delete", item })}><Trash2 size={14} /></Icon></div></td>
+                <tr key={item.id} className="transition-colors hover:bg-blue-50/30">
+                  <td className="max-w-[360px] px-3 py-2"><div className="flex items-center gap-2.5"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-slate-100 text-[#0f2747]">{(() => { const ServiceIcon = getServiceIcon(item.icon_key); return <ServiceIcon size={16} strokeWidth={1.8} />; })()}</span><span className="min-w-0"><b className="block truncate text-[#0f2747]">{item.title_zh}</b><span className="block truncate text-[10px] leading-4 text-slate-500">{item.title_en}</span></span></div></td>
+                  <td className="px-3 py-2.5 font-mono text-[10px] text-slate-500">{item.slug}</td>
+                  <td className="px-3 py-2.5 tabular-nums text-slate-600">{item.sort_order}</td>
+                  <td className="px-3 py-2.5"><span className={item.published ? "text-emerald-700" : "text-slate-400"}>{item.published ? "已发布" : "草稿"}</span></td>
+                  <td className="px-3 py-2"><div className="flex justify-end gap-1"><Icon onClick={() => setDialog({ mode: "edit", item })}><Pencil size={14} /></Icon><Icon onClick={() => setDialog({ mode: "delete", item })}><Trash2 size={14} /></Icon></div></td>
                 </tr>
               ))}
             </tbody>
@@ -668,17 +682,17 @@ function ServiceEditor({ item, loading, close, save }: { item?: AdminService; lo
           });
         } catch (cause) { setError(cause instanceof Error ? cause.message : "保存失败"); }
       }}>
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
-          <div><p className="text-[10px] font-bold tracking-[.14em] text-blue-600">SERVICE EDITOR</p><h2 className="mt-1 text-lg font-bold text-[#0f2747]">{item ? "编辑服务项目" : "新增服务项目"}</h2></div>
-          <span className="mr-9 text-xs text-slate-500">中英文可独立维护，空缺时自动使用另一语言</span>
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white px-5 py-3">
+          <div><p className="text-[9px] font-bold tracking-[.14em] text-blue-600">SERVICE EDITOR</p><h2 className="mt-0.5 text-base font-bold text-[#0f2747]">{item ? "编辑服务项目" : "新增服务项目"}</h2></div>
+          <span className="mr-9 hidden text-[11px] text-slate-500 sm:block">中英文可独立维护，空缺时自动使用另一语言</span>
         </header>
-        <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_19rem]">
-          <fieldset disabled={loading} className="min-w-0 space-y-7 p-6">
+        <div className="grid min-h-0 lg:grid-cols-[minmax(0,1fr)_17rem]">
+          <fieldset disabled={loading} className="min-w-0 space-y-4 p-4 sm:p-5">
             <EditorSection number="01" title="基础信息" text="用于生成服务页面、导航和排序。">
               <div className="grid gap-3 sm:grid-cols-2"><Field name="titleZh" label="中文标题" value={previewTitle} onChange={(event) => setPreviewTitle(event.target.value)} /><Field name="titleEn" label="English title" defaultValue={item?.title_en} /><Field name="shortTitleZh" label="中文短标题" defaultValue={item?.short_title_zh} /><Field name="shortTitleEn" label="English short title" defaultValue={item?.short_title_en} /><Field name="slug" label="URL 标识" defaultValue={item?.slug} placeholder="traffic-tickets" required /><div className="grid grid-cols-2 gap-3"><Field name="sortOrder" type="number" label="排序" defaultValue={item?.sort_order || 0} /><label className="grid gap-1.5 text-xs font-bold"><span>状态</span><Select name="published" defaultValue={item?.published === 0 ? "0" : "1"}><option value="1">已发布</option><option value="0">草稿</option></Select></label></div></div>
             </EditorSection>
             <EditorSection number="02" title="服务图标" text="选择后会立即反映在右侧预览和前台卡片中。">
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">{serviceIconOptions.map(([value, label]) => { const Icon = getServiceIcon(value); const selected = value === iconKey; return <button key={value} title={label} type="button" onClick={() => setIconKey(value)} className={`group grid min-h-20 place-items-center border p-2 text-center transition-[border-color,background-color,color,transform] duration-150 ease-out active:scale-[.97] ${selected ? "border-blue-600 bg-blue-50 text-blue-700 ring-2 ring-blue-100" : "border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:text-[#0f2747]"}`}><Icon size={21} /><span className="mt-1 text-[10px] font-bold leading-3">{label}</span></button>; })}</div>
+              <div className="admin-icon-strip flex gap-1 overflow-x-auto pb-1.5" role="group" aria-label="服务图标">{serviceIconOptions.map(([value, label]) => { const Icon = getServiceIcon(value); const selected = value === iconKey; return <button key={value} title={label} aria-label={label} aria-pressed={selected} type="button" onClick={() => setIconKey(value)} className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg border transition-[border-color,background-color,color,transform,box-shadow] duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 active:scale-[.94] ${selected ? "border-blue-600 bg-blue-50 text-blue-700 shadow-[inset_0_0_0_1px_#2563eb]" : "border-slate-200 bg-white text-slate-500 hover:border-blue-300 hover:bg-slate-50 hover:text-[#0f2747]"}`}><Icon size={18} strokeWidth={1.8} /></button>; })}</div>
             </EditorSection>
             <EditorSection number="03" title="页面文案" text="列表页使用简介；详情页使用服务概览。">
               <div className="grid gap-3 sm:grid-cols-2"><Area name="introZh" label="中文简介" value={previewIntro} onChange={(event) => setPreviewIntro(event.target.value)} /><Area name="introEn" label="English intro" defaultValue={item?.intro_en} /><Area name="overviewZh" label="中文服务概览" defaultValue={item?.overview_zh} /><Area name="overviewEn" label="English overview" defaultValue={item?.overview_en} /></div>
@@ -698,16 +712,16 @@ function ServiceEditor({ item, loading, close, save }: { item?: AdminService; lo
               </div>
             </EditorSection>
             <EditorSection number="05" title="服务要点" text="每项要点可单独调整顺序、删除；中英文可以分别留空。">
-              <div className="space-y-2">{points.map((point, index) => <div key={index} className="grid gap-2 border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[auto_1fr_1fr_auto]"><span className="flex items-center text-slate-400"><GripVertical size={16} /><b className="text-xs">{String(index + 1).padStart(2, "0")}</b></span><input aria-label={`第 ${index + 1} 项中文要点`} value={point.zh} onChange={(event) => updatePoint(index, "zh", event.target.value)} placeholder="中文服务要点" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><input aria-label={`Key point ${index + 1} in English`} value={point.en} onChange={(event) => updatePoint(index, "en", event.target.value)} placeholder="English key point" className="min-w-0 border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><ItemControls index={index} count={points.length} disabled={loading} up={() => setPoints((current) => moveItem(current, index, -1))} down={() => setPoints((current) => moveItem(current, index, 1))} remove={() => setPoints((current) => current.filter((_, i) => i !== index))} /></div>)}</div>
+              <div className="space-y-1.5">{points.map((point, index) => <div key={index} className="grid gap-1.5 border border-slate-200 bg-slate-50 p-2 sm:grid-cols-[auto_1fr_1fr_auto]"><span className="flex items-center text-slate-400"><GripVertical size={15} /><b className="text-[10px] tabular-nums">{String(index + 1).padStart(2, "0")}</b></span><input aria-label={`第 ${index + 1} 项中文要点`} value={point.zh} onChange={(event) => updatePoint(index, "zh", event.target.value)} placeholder="中文服务要点" className="min-w-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><input aria-label={`Key point ${index + 1} in English`} value={point.en} onChange={(event) => updatePoint(index, "en", event.target.value)} placeholder="English key point" className="min-w-0 border border-slate-300 bg-white px-2.5 py-1.5 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /><ItemControls index={index} count={points.length} disabled={loading} up={() => setPoints((current) => moveItem(current, index, -1))} down={() => setPoints((current) => moveItem(current, index, 1))} remove={() => setPoints((current) => current.filter((_, i) => i !== index))} /></div>)}</div>
               <AddInline label="增加服务要点" onClick={() => setPoints((current) => [...current, { zh: "", en: "" }])} />
             </EditorSection>
             <EditorSection number="06" title="服务流程" text="步骤数量不设限制；可任意增加、删除和排序。">
-              <div className="space-y-3">{steps.map((step, index) => <article key={index} className="border border-slate-200 bg-slate-50"><div className="flex items-center justify-between border-b border-slate-200 bg-white px-3 py-2"><span className="flex items-center gap-1.5 text-xs font-bold text-[#0f2747]"><GripVertical size={16} className="text-slate-400" />步骤 {String(index + 1).padStart(2, "0")}</span><ItemControls index={index} count={steps.length} disabled={loading} up={() => setSteps((current) => moveItem(current, index, -1))} down={() => setSteps((current) => moveItem(current, index, 1))} remove={() => setSteps((current) => current.filter((_, i) => i !== index))} /></div><div className="grid gap-3 p-3 sm:grid-cols-2"><Field label="中文标题" value={step.title_zh} onChange={(event) => updateStep(index, "title_zh", event.target.value)} /><Field label="English title" value={step.title_en} onChange={(event) => updateStep(index, "title_en", event.target.value)} /><Area label="中文说明" value={step.description_zh} onChange={(event) => updateStep(index, "description_zh", event.target.value)} /><Area label="English description" value={step.description_en} onChange={(event) => updateStep(index, "description_en", event.target.value)} /></div></article>)}</div>
+              <div className="space-y-2">{steps.map((step, index) => <article key={index} className="border border-slate-200 bg-slate-50"><div className="flex items-center justify-between border-b border-slate-200 bg-white px-2.5 py-1.5"><span className="flex items-center gap-1.5 text-[11px] font-bold text-[#0f2747]"><GripVertical size={15} className="text-slate-400" />步骤 {String(index + 1).padStart(2, "0")}</span><ItemControls index={index} count={steps.length} disabled={loading} up={() => setSteps((current) => moveItem(current, index, -1))} down={() => setSteps((current) => moveItem(current, index, 1))} remove={() => setSteps((current) => current.filter((_, i) => i !== index))} /></div><div className="grid gap-2 p-2.5 sm:grid-cols-2"><Field label="中文标题" value={step.title_zh} onChange={(event) => updateStep(index, "title_zh", event.target.value)} /><Field label="English title" value={step.title_en} onChange={(event) => updateStep(index, "title_en", event.target.value)} /><Area label="中文说明" value={step.description_zh} onChange={(event) => updateStep(index, "description_zh", event.target.value)} /><Area label="English description" value={step.description_en} onChange={(event) => updateStep(index, "description_en", event.target.value)} /></div></article>)}</div>
               <AddInline label="增加流程步骤" onClick={() => setSteps((current) => [...current, { title_zh: "", title_en: "", description_zh: "", description_en: "" }])} />
             </EditorSection>
             <EditorSection number="07" title="服务图片" text="支持上传图片或填写 HTTPS 图片地址。"><div className="flex flex-wrap items-center gap-3 border border-dashed border-slate-300 bg-slate-50 p-3">{image ? <img src={image} className="h-20 w-32 object-cover" alt="" /> : <span className="grid h-20 w-32 place-items-center bg-white text-slate-400"><ImagePlus size={20} /></span>}<label className="cursor-pointer border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-blue-700 transition-colors hover:border-blue-300"><input type="file" accept="image/*" className="sr-only" onChange={async (event) => { const file = event.target.files?.[0]; if (!file) return; try { setImage(await compressImage(file)); } catch (cause) { setError(cause instanceof Error ? cause.message : "图片处理失败"); } }} />{image ? "替换图片" : "选择图片"}</label><input value={image.startsWith("data:") ? "" : image} onChange={(event) => setImage(event.target.value)} placeholder="https://example.com/service-image.jpg" className="min-w-[14rem] flex-1 border border-slate-300 bg-white px-3 py-2 text-xs outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100" /></div></EditorSection>
           </fieldset>
-          <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
+          <aside className="border-t border-slate-200 bg-slate-50 p-4 lg:sticky lg:top-0 lg:max-h-[calc(100dvh-2rem)] lg:overflow-y-auto lg:border-l lg:border-t-0">
             <p className="text-[10px] font-bold tracking-[.14em] text-blue-600">LIVE PREVIEW</p>
             <p className="mt-1 text-sm font-bold text-[#0f2747]">服务卡片预览</p>
             <div className="mt-4 overflow-hidden border border-slate-200 bg-white shadow-sm">
@@ -727,13 +741,13 @@ function ServiceEditor({ item, loading, close, save }: { item?: AdminService; lo
           </aside>
         </div>
         {error && <p className="mx-6 mb-4 border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>}
-        <footer className="sticky bottom-0 flex justify-end gap-2 border-t border-slate-200 bg-white px-6 py-4"><button type="button" disabled={loading} onClick={close} className="border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 disabled:opacity-50">取消</button><Button disabled={loading} className="min-w-28 py-2 text-xs">{loading ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{loading ? "保存中…" : "保存服务"}</Button></footer>
+        <footer className="sticky bottom-0 flex justify-end gap-2 border-t border-slate-200 bg-white px-5 py-3"><button type="button" disabled={loading} onClick={close} className="border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition active:scale-[.97] disabled:opacity-50">取消</button><Button disabled={loading} className="min-w-28 py-2 text-xs">{loading ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{loading ? "保存中…" : "保存服务"}</Button></footer>
       </form>
     </Modal>
   );
 }
-function EditorSection({ number, title, text, children }: { number: string; title: string; text: string; children: React.ReactNode }) { return <section className="border-b border-slate-200 pb-7 last:border-b-0 last:pb-0"><div className="mb-4 flex gap-3"><span className="pt-0.5 text-xs font-bold text-blue-600">{number}</span><div><h3 className="text-sm font-bold text-[#0f2747]">{title}</h3><p className="mt-0.5 text-xs text-slate-500">{text}</p></div></div>{children}</section>; }
-function AddInline({ label, onClick }: { label: string; onClick: () => void }) { return <button type="button" onClick={onClick} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 transition-colors hover:text-blue-900 active:scale-[.97]"><Plus size={15} />{label}</button>; }
+function EditorSection({ number, title, text, children }: { number: string; title: string; text: string; children: React.ReactNode }) { return <section className="border-b border-slate-200 pb-4 last:border-b-0 last:pb-0"><div className="mb-2.5 flex gap-2.5"><span className="pt-0.5 text-[10px] font-bold tabular-nums text-blue-600">{number}</span><div><h3 className="text-[13px] font-bold text-[#0f2747]">{title}</h3><p className="text-[11px] leading-4 text-slate-500">{text}</p></div></div>{children}</section>; }
+function AddInline({ label, onClick }: { label: string; onClick: () => void }) { return <button type="button" onClick={onClick} className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 transition-[color,transform] hover:text-blue-900 active:scale-[.96]"><Plus size={14} />{label}</button>; }
 function ItemControls({ index, count, disabled, up, down, remove }: { index: number; count: number; disabled: boolean; up: () => void; down: () => void; remove: () => void }) { return <div className="flex items-center justify-end gap-1"><button type="button" title="上移" aria-label="上移" disabled={disabled || index === 0} onClick={up} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronUp size={14} /></button><button type="button" title="下移" aria-label="下移" disabled={disabled || index === count - 1} onClick={down} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-500 disabled:opacity-30"><ChevronDown size={14} /></button><button type="button" title="删除" aria-label="删除" disabled={disabled} onClick={remove} className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-red-600 disabled:opacity-30"><Trash2 size={14} /></button></div>; }
 function TaxonomyPanel({
   categories,
@@ -1060,7 +1074,7 @@ function CasesPanel({
       </div>
       <Card className="relative mt-4 overflow-hidden">
         {pageLoading && (
-          <div className="admin-loading-layer absolute inset-0 z-20 grid place-items-center bg-white/72 backdrop-blur-[2px]">
+          <div className="admin-loading-layer absolute inset-0 z-20 grid place-items-center bg-white/90">
             <span className="inline-flex items-center gap-2 border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-[#0f2747] shadow-sm">
               <LoaderCircle size={15} className="animate-spin text-blue-600" />
               正在加载案例…
@@ -1509,20 +1523,31 @@ function Modal({
   extraWide?: boolean;
   locked?: boolean;
 }) {
+  useEffect(() => {
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !locked) close();
+    };
+    window.addEventListener("keydown", dismiss);
+    return () => window.removeEventListener("keydown", dismiss);
+  }, [close, locked]);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 p-4"
+      className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/40 p-3"
       role="dialog"
       aria-modal="true"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !locked) close();
+      }}
     >
       <div
-        className={`relative my-auto max-h-[calc(100dvh-2rem)] w-full overflow-y-auto overflow-x-hidden bg-white shadow-2xl ${extraWide ? "max-w-6xl" : wide ? "max-w-3xl" : "max-w-lg"}`}
+        className={`modal-pop relative my-auto max-h-[calc(100dvh-1.5rem)] w-full overflow-y-auto overflow-x-hidden rounded-2xl border border-white/70 bg-white shadow-[0_24px_80px_rgba(15,39,71,.24)] ${extraWide ? "max-w-6xl" : wide ? "max-w-3xl" : "max-w-lg"}`}
+        onMouseDown={(event) => event.stopPropagation()}
       >
         <button
           aria-label="关闭"
           disabled={locked}
           onClick={close}
-          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center bg-white/90 text-slate-500 disabled:cursor-wait disabled:opacity-40"
+          className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-slate-500 transition-[background-color,color,transform] hover:bg-slate-100 hover:text-slate-900 active:scale-95 disabled:cursor-wait disabled:opacity-40"
         >
           <X size={16} />
         </button>
@@ -1598,11 +1623,11 @@ function Field({
   ...props
 }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) {
   return (
-    <label className="grid gap-1.5 text-xs font-bold">
+    <label className="grid gap-1 text-[11px] font-bold">
       <span>{label}</span>
       <input
         {...props}
-        className="border border-slate-300 bg-white px-3 py-2.5 text-sm font-normal outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+        className="rounded-md border border-slate-300 bg-white px-2.5 py-2 text-xs font-normal outline-none transition-[border-color,box-shadow] focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
       />
     </label>
   );
@@ -1612,12 +1637,12 @@ function Area({
   ...props
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label: string }) {
   return (
-    <label className="grid gap-1.5 text-xs font-bold">
+    <label className="grid gap-1 text-[11px] font-bold">
       <span>{label}</span>
       <textarea
         {...props}
         rows={3}
-        className="resize-y border border-slate-300 px-3 py-2.5 text-sm font-normal outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+        className="resize-y rounded-md border border-slate-300 px-2.5 py-2 text-xs font-normal leading-5 outline-none transition-[border-color,box-shadow] focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
       />
     </label>
   );
@@ -1652,7 +1677,7 @@ function Icon({
   return (
     <button
       onClick={onClick}
-      className="grid h-7 w-7 place-items-center border border-slate-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
+      className="grid h-7 w-7 place-items-center rounded-md border border-slate-200 bg-white text-slate-600 transition-[border-color,color,transform] hover:border-blue-300 hover:text-blue-600 active:scale-95"
     >
       {children}
     </button>

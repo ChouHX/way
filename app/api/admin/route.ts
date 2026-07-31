@@ -155,9 +155,13 @@ export async function POST(request: NextRequest) {
     if (!DB)
       return json({ error: "D1 binding is unavailable" }, { status: 503 });
     if (body.action === "site") {
+      const logoUrl = String(body.logoUrl ?? "/logo-transparent.png").trim();
+      if (logoUrl !== "/logo-transparent.png" && !validImage(logoUrl))
+        return json({ error: "LOGO 必须是 HTTPS 图片地址，或小于 450 KB 的图片" }, { status: 400 });
       for (const [key, value] of [
         ["title_zh", body.titleZh],
         ["title_en", body.titleEn],
+        ["logo_url", logoUrl],
       ])
         await DB.prepare(
           "INSERT INTO site_settings(key,value,updated_at) VALUES(?,?,CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP",

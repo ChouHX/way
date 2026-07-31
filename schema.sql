@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
 );
 
 INSERT OR IGNORE INTO site_settings(key,value) VALUES
+('logo_url','/logo-transparent.png'),
 ('contact_phone','(888) 123-4567'),
 ('contact_email','info@yongshengconsulting.com'),
 ('contact_address_zh','123 Main Street, Suite 100, New York, NY 10001'),

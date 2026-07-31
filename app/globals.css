@@ -164,7 +164,7 @@ samp {
 @keyframes modal-pop-in {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.965);
+    transform: translateY(6px) scale(0.985);
   }
   to {
     opacity: 1;
@@ -203,11 +203,28 @@ samp {
   animation: page-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .modal-backdrop {
-  animation: modal-backdrop-in 180ms ease-out both;
+  animation: modal-backdrop-in 160ms ease-out both;
 }
 .modal-pop {
-  animation: modal-pop-in 300ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: 50% 12%;
+  animation: modal-pop-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
+}
+.admin-shell {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+.admin-shell .pressable {
+  border-radius: 0.5rem;
+}
+.admin-icon-strip {
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  touch-action: pan-x;
+  scrollbar-color: #94a3b8 transparent;
+}
+.admin-icon-strip > button {
+  scroll-snap-align: start;
 }
 .stagger-card:nth-child(2) {
   animation-delay: 60ms;

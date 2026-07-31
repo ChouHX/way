@@ -15,12 +15,12 @@ import { PageTransition } from "./page-transition";
 
 const paths = ["", "/services", "/cases", "/about", "/contact"];
 
-export function Brand({ locale }: { locale: Locale }) {
+export function Brand({ locale, logoUrl = "/logo-transparent.png" }: { locale: Locale; logoUrl?: string }) {
   const t = getDictionary(locale);
   return (
     <Link href={`/${locale}`} className="flex min-w-0 items-center gap-2.5">
       <img
-        src="/logo-transparent.png"
+        src={logoUrl}
         alt="YONG SHENG CONSULTNG logo"
         className="h-10 w-12 object-contain"
       />
@@ -41,11 +41,13 @@ export function SiteShell({
   children,
   services,
   contact,
+  logoUrl,
 }: {
   locale: Locale;
   children: React.ReactNode;
   services: ServiceItem[];
   contact: ContactSettings;
+  logoUrl?: string;
 }) {
   const t = getDictionary(locale);
   const pathname = usePathname();
@@ -89,7 +91,7 @@ export function SiteShell({
     >
       <header className="sticky top-0 z-40 bg-[#1a243f] shadow-[0_1px_0_rgba(255,255,255,.1)]">
         <div className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5">
-          <Brand locale={locale} />
+          <Brand locale={locale} logoUrl={logoUrl} />
           <span className="pointer-events-none absolute left-1/2 hidden -translate-x-1/2 text-xs font-semibold tracking-[.06em] text-white/70 md:block lg:hidden">
             {t.nav[currentIndex]}
           </span>
