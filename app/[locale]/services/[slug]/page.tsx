@@ -110,22 +110,22 @@ export default async function ServiceDetail({
           </aside>
         </section>
 
-        {copy.showProcess && copy.steps.length > 0 && <section className="border-y border-[#dedede] bg-white">
+        {copy.showProcess && copy.steps.length > 0 && <section className="border-y border-[#8a7d51]/50 bg-[#1a243f] text-white">
           <div className="mx-auto max-w-6xl px-5 py-16">
-            <p className="text-xs font-bold tracking-[.15em] text-[#8a7d51]">
+            <p className="text-xs font-bold tracking-[.15em] text-[#c5b780]">
               {zh ? "一般流程" : "OUR PROCESS"}
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-[#1a243f]">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-white">
               {copy.processTitle}
             </h2>
-            <div className="mt-10 grid gap-px border border-[#dedede] bg-[#dedede]" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))" }}>
+            <div className="mt-10 grid gap-px border border-[#8a7d51]/60 bg-[#8a7d51]/50" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))" }}>
               {copy.steps.map((step, index) => (
-                <article key={`${step.title}-${index}`} className="bg-white p-6">
-                  <span className="text-xs font-bold text-[#8a7d51]">
+                <article key={`${step.title}-${index}`} className="min-h-56 bg-[#202c49] p-6 transition-colors hover:bg-[#253252]">
+                  <span className="text-xs font-bold text-[#c5b780]">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="mt-4 text-lg font-bold text-[#1a243f]">{step.title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{step.description}</p>
+                  <h3 className="mt-4 text-lg font-bold text-white">{step.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-300">{step.description}</p>
                 </article>
               ))}
             </div>
