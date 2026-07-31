@@ -110,17 +110,17 @@ export default async function ServiceDetail({
           </aside>
         </section>
 
-        {copy.showProcess && copy.steps.length > 0 && <section className="border-y border-[#8a7d51]/50 bg-[#1a243f] text-white">
+        {copy.showProcess && copy.steps.length > 0 && <section className="border-y border-[#dedede] bg-white">
           <div className="mx-auto max-w-6xl px-5 py-16">
-            <p className="text-xs font-bold tracking-[.15em] text-[#c5b780]">
+            <p className="text-xs font-bold tracking-[.15em] text-[#8a7d51]">
               {zh ? "一般流程" : "OUR PROCESS"}
             </p>
-            <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-white">
+            <h2 className="mt-3 text-3xl font-bold tracking-[-.035em] text-[#1a243f]">
               {copy.processTitle}
             </h2>
-            <div className="mt-10 grid gap-px border border-[#8a7d51]/60 bg-[#8a7d51]/50" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))" }}>
+            <div className="mt-10 grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))" }}>
               {copy.steps.map((step, index) => (
-                <article key={`${step.title}-${index}`} className="min-h-56 bg-[#202c49] p-6 transition-colors hover:bg-[#253252]">
+                <article key={`${step.title}-${index}`} className="min-h-56 border border-[#8a7d51]/70 bg-[#202c49] p-6 transition-colors hover:border-[#c5b780] hover:bg-[#253252]">
                   <span className="text-xs font-bold text-[#c5b780]">
                     {String(index + 1).padStart(2, "0")}
                   </span>
