@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Locale } from "@/lib/i18n";
-import { getPublicCasesPage, getTaxonomy, type Taxonomy } from "@/lib/content";
+import { getPublicCaseFilterCombinations, getPublicCasesPage, getTaxonomy, type Taxonomy } from "@/lib/content";
 import { getPublicCaseCategory } from "@/lib/case-categories";
 import { PageHero, ConsultationCallout } from "@/components/shared";
 import { CasesBrowser } from "@/components/cases-browser";
@@ -31,9 +31,10 @@ export default async function CategoryCasesPage({
   const definition = getPublicCaseCategory(categorySlug);
   if (!definition) notFound();
 
-  const [initialPage, taxonomy] = await Promise.all([
+  const [initialPage, taxonomy, combinations] = await Promise.all([
     getPublicCasesPage({ category: definition.id }),
     getTaxonomy(),
+    getPublicCaseFilterCombinations(definition.id),
   ]);
   const databaseCategory = taxonomy.categories.find(
     (item) => item.id === definition.id,
@@ -64,7 +65,7 @@ export default async function CategoryCasesPage({
         locale={locale}
         category={category}
         initialPage={initialPage}
-        taxonomy={{ types: taxonomy.types, regions: taxonomy.regions }}
+        taxonomy={{ types: taxonomy.types, regions: taxonomy.regions, combinations }}
       />
       <ConsultationCallout locale={locale} />
     </>

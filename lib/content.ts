@@ -7,6 +7,7 @@ import {
   type ServiceStep,
 } from "@/lib/services";
 import type { ContactSettings } from "@/lib/contact";
+import { defaultAboutContent, type AboutContent } from "@/lib/about";
 
 export type Taxonomy = {
   id: string;
@@ -49,6 +50,11 @@ export type PublicCasesPage = {
   pageSize: number;
   total: number;
   totalPages: number;
+};
+export type CaseFilterCombination = {
+  type_id?: string;
+  region_id?: string;
+  case_count: number;
 };
 export type Guide = {
   id: string;
@@ -149,6 +155,18 @@ export async function getPublicSiteSettings(): Promise<{ logo_url: string }> {
   const settings = Object.fromEntries(result.map((row) => [row.key, row.value]));
   return { logo_url: settings.logo_url || "/logo-transparent.png" };
 }
+
+export async function getPublicAboutContent(locale: "zh" | "en"): Promise<AboutContent> {
+  const result = await rows<{ value: string }>(
+    "SELECT value FROM site_settings WHERE key=? LIMIT 1",
+    `about_content_${locale}`,
+  );
+  try {
+    return { ...defaultAboutContent[locale], ...JSON.parse(result[0]?.value || "") };
+  } catch {
+    return defaultAboutContent[locale];
+  }
+}
 const publicCaseSelect =
   "SELECT s.*,c.name_zh category_name_zh,c.name_en category_name_en,t.name_zh type_name_zh,t.name_en type_name_en,r.name_zh region_name_zh,r.name_en region_name_en,g.slug guide_slug,g.title_zh guide_title_zh,g.title_en guide_title_en,g.summary_zh guide_summary_zh,g.summary_en guide_summary_en FROM case_studies s LEFT JOIN case_categories c ON c.id=s.category_id LEFT JOIN case_types t ON t.id=s.type_id AND NOT (LOWER(TRIM(t.name_en))='other' OR TRIM(t.name_zh)='其他') LEFT JOIN case_regions r ON r.id=s.region_id LEFT JOIN guides g ON g.id=s.guide_id AND g.published=1";
 const publicCaseOrder =
@@ -229,7 +247,20 @@ export async function getPublicCasesPage({
 }
 export const getFeaturedPublicCases = () =>
   rows<PublicCase>(
-    `${publicCaseSelect} WHERE s.published=1 ORDER BY ${publicCaseOrder} LIMIT 12`,
+    `WITH ranked AS (
+      SELECT id,ROW_NUMBER() OVER (
+        PARTITION BY category_id
+        ORDER BY CASE WHEN case_date IS NULL OR TRIM(case_date)='' OR LOWER(TRIM(case_date))='unknown' THEN 1 ELSE 0 END,case_date DESC,COALESCE(updated_at,created_at) DESC
+      ) category_rank
+      FROM case_studies WHERE published=1
+    ) ${publicCaseSelect}
+    WHERE s.id IN (SELECT id FROM ranked WHERE category_rank<=6)
+    ORDER BY COALESCE(s.updated_at,s.created_at) DESC,s.case_date DESC LIMIT 24`,
+  );
+export const getPublicCaseFilterCombinations = (categoryId: string) =>
+  rows<CaseFilterCombination>(
+    "SELECT type_id,region_id,COUNT(*) case_count FROM case_studies WHERE published=1 AND category_id=? GROUP BY type_id,region_id",
+    categoryId,
   );
 export const getTaxonomy = async () => ({
   categories: await rows<Taxonomy>(

@@ -1,0 +1,62 @@
+import type { Locale } from "@/lib/i18n";
+
+export type AboutContent = {
+  heroTitle: string;
+  heroDescription: string;
+  intro: string;
+  strengths: string[];
+  immigrationIntro: string;
+  immigrationServices: string[];
+  impact: string;
+  mission: string;
+  serviceRegions: string[];
+};
+
+export const defaultAboutContent: Record<Locale, AboutContent> = {
+  zh: {
+    heroTitle: "专业服务华人社区的交通罚单咨询团队",
+    heroDescription: "立足纽约布鲁克林，服务覆盖全美，以专业、高效、可靠的方式协助处理交通罚单、移民及证件事务。",
+    intro: "永盛罚单咨询中心位于纽约布鲁克林，是一家专注于服务华人社区的专业交通罚单咨询与处理机构。凭借丰富的交通法律知识和多年实战经验，我们为客户提供专业、高效、可靠的交通罚单处理服务。业务范围覆盖全美（除部分偏远地区及夏威夷外），十多年来已成功协助数千位客户妥善处理各类交通罚单，赢得了广大客户的信赖与好评。",
+    strengths: [
+      "熟悉全美各州交通罚单处理流程。",
+      "了解各州 DMV 扣分制度及对保险、驾照的影响。",
+      "服务全美华人，全程中文沟通，收费透明，无隐藏费用。",
+      "7×24 小时在线，全年无休，免费咨询。",
+    ],
+    immigrationIntro: "除了交通罚单处理，我们还提供专业的移民及证件办理服务。凭借多年的经验，我们已帮助众多客户顺利办理各类证件及认证业务，以专业、高效、贴心的服务赢得广大客户的信赖。",
+    immigrationServices: [
+      "护照换发、补发及旅行证办理",
+      "各类签证申请",
+      "回美证（Re-entry Permit）申请",
+      "领事公证（委托书、声明书等）",
+      "海牙认证（Apostille）",
+      "其他移民及证件相关咨询与办理服务",
+    ],
+    impact: "我们深知，交通罚单带来的影响远不止罚款本身，更可能导致驾照扣分、汽车保险保费上涨，严重情况下甚至面临驾照暂停或吊销等后果。因此，我们始终秉持专业、负责的服务态度，根据每位客户的实际情况，全面分析案件的可行性，制定合适的处理方案，并耐心解答客户的各项疑问。",
+    mission: "我们的宗旨是为每一位客户争取最佳处理结果，尽可能降低交通罚单带来的经济损失和后续影响，让客户安心、省心、放心。",
+    serviceRegions: ["NY", "CA", "NJ", "VA", "PA", "WA", "全美各州"],
+  },
+  en: {
+    heroTitle: "Traffic-ticket guidance for Chinese-speaking communities",
+    heroDescription: "Based in Brooklyn, New York, and serving clients nationwide with professional, efficient support for traffic tickets, immigration, and document matters.",
+    intro: "Yong Sheng Ticket Consulting Center is based in Brooklyn, New York, and focuses on serving Chinese-speaking communities. With extensive traffic-law knowledge and years of practical experience, we provide professional, efficient, and dependable traffic-ticket support. Our service reaches clients across the United States, excluding certain remote areas and Hawaii. For more than a decade, we have helped thousands of clients address a wide range of traffic tickets and earned their trust through careful service.",
+    strengths: [
+      "Familiar with traffic-ticket procedures across the United States.",
+      "Experienced with state DMV point systems and their effects on insurance and driving privileges.",
+      "Nationwide Chinese-language support with transparent pricing and no hidden fees.",
+      "Free consultation available 24 hours a day, 7 days a week, year-round.",
+    ],
+    immigrationIntro: "In addition to traffic-ticket matters, we provide immigration and document-processing support. Drawing on years of experience, we have helped many clients complete document and certification matters with professional, efficient, and attentive service.",
+    immigrationServices: [
+      "Passport renewal, replacement, and travel-document applications",
+      "Visa applications",
+      "Re-entry Permit applications",
+      "Consular notarization, including powers of attorney and declarations",
+      "Apostille authentication",
+      "Other immigration and document-related consultation and processing support",
+    ],
+    impact: "We understand that a traffic ticket can have consequences far beyond the fine itself. It may add license points, increase auto-insurance premiums, or, in serious situations, lead to a suspended or revoked license. We approach every matter responsibly, assess the practical options based on each client situation, develop an appropriate plan, and answer questions with patience and clarity.",
+    mission: "Our purpose is to pursue the best available outcome for every client, reduce the financial and longer-term effects of traffic tickets wherever possible, and make the process clearer and less stressful.",
+    serviceRegions: ["NY", "CA", "NJ", "VA", "PA", "WA", "Nationwide"],
+  },
+};

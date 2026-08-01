@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
-import type { PublicCasesPage, Taxonomy } from "@/lib/content";
+import type { CaseFilterCombination, PublicCasesPage, Taxonomy } from "@/lib/content";
 import { Select } from "@/components/ui";
 import { AnimatedGroup } from "@/components/core/animated-group";
 import { CaseCard } from "@/components/case-card";
@@ -20,6 +20,7 @@ export function CasesBrowser({
   taxonomy: {
     types: Taxonomy[];
     regions: Taxonomy[];
+    combinations: CaseFilterCombination[];
   };
 }) {
   const zh = locale === "zh";
@@ -37,9 +38,22 @@ export function CasesBrowser({
   const mountedFilters = useRef(false);
   const retryRequest = useRef({ page: 1, replace: true });
   const filters = useRef({ category: category.id, type, region });
-  const types = taxonomy.types.filter(
-    (item) => item.category_id === category.id,
-  );
+  const baseTypes = useMemo(() => taxonomy.types.filter(
+    (item) => item.category_id === category.id && taxonomy.combinations.some((combination) => combination.type_id === item.id),
+  ), [category.id, taxonomy.combinations, taxonomy.types]);
+  const baseRegions = useMemo(() => taxonomy.regions.filter(
+    (item) => taxonomy.combinations.some((combination) => combination.region_id === item.id),
+  ), [taxonomy.combinations, taxonomy.regions]);
+  const types = useMemo(() => baseTypes.filter((item) =>
+    !region || taxonomy.combinations.some((combination) => combination.type_id === item.id && combination.region_id === region),
+  ), [baseTypes, region, taxonomy.combinations]);
+  const regions = useMemo(() => baseRegions.filter((item) =>
+    !type || taxonomy.combinations.some((combination) => combination.region_id === item.id && combination.type_id === type),
+  ), [baseRegions, type, taxonomy.combinations]);
+  const countForType = (typeId: string) => taxonomy.combinations.reduce((total, combination) =>
+    total + (combination.type_id === typeId && (!region || combination.region_id === region) ? Number(combination.case_count) : 0), 0);
+  const countForRegion = (regionId: string) => taxonomy.combinations.reduce((total, combination) =>
+    total + (combination.region_id === regionId && (!type || combination.type_id === type) ? Number(combination.case_count) : 0), 0);
 
   useEffect(() => {
     filters.current = { category: category.id, type, region };
@@ -134,24 +148,32 @@ export function CasesBrowser({
           <Select
             aria-label={zh ? "罚单类型" : "Ticket type"}
             value={type}
-            onChange={(event) => setType(event.target.value)}
+            onChange={(event) => {
+              const nextType = event.target.value;
+              if (region && nextType && !taxonomy.combinations.some((combination) => combination.type_id === nextType && combination.region_id === region)) setRegion("");
+              setType(nextType);
+            }}
           >
             <option value="">{zh ? "全部类型" : "All types"}</option>
             {types.map((item) => (
               <option key={item.id} value={item.id}>
-                {zh ? item.name_zh : item.name_en}
+                {zh ? item.name_zh : item.name_en} ({countForType(item.id)})
               </option>
             ))}
           </Select>
           <Select
             aria-label={zh ? "地区" : "Region"}
             value={region}
-            onChange={(event) => setRegion(event.target.value)}
+            onChange={(event) => {
+              const nextRegion = event.target.value;
+              if (type && nextRegion && !taxonomy.combinations.some((combination) => combination.region_id === nextRegion && combination.type_id === type)) setType("");
+              setRegion(nextRegion);
+            }}
           >
             <option value="">{zh ? "全部地区" : "All regions"}</option>
-            {taxonomy.regions.map((item) => (
+            {regions.map((item) => (
               <option key={item.id} value={item.id}>
-                {zh ? item.name_zh : item.name_en}
+                {zh ? item.name_zh : item.name_en} ({countForRegion(item.id)})
               </option>
             ))}
           </Select>
