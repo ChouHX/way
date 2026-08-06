@@ -2,11 +2,11 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { ConsultationCallout } from "@/components/shared";
-import { TextEffect } from "@/components/core/text-effect";
 import { HeroStats, HomeServiceDialogs } from "@/components/home-showcase";
 import { HomeTicketGuide } from "@/components/home-ticket-guide";
 import { getFeaturedPublicCases, getPublicServices } from "@/lib/content";
 import { HomeCaseMarquee } from "@/components/home-case-marquee";
+import { EditableText, EditableTextEffect } from "@/components/inline-editor";
 
 export default async function Home({
   params,
@@ -17,7 +17,7 @@ export default async function Home({
   const t = getDictionary(locale);
   const zh = locale === "zh";
   const heroLines = zh
-    ? "专业处理罚单与移民相关事务，\n为您的合法权益保驾护航"
+    ? "专业处理全美交通罚单与相关事务，\n为您的合法权益保驾护航"
     : "Practical guidance for ticket and\nimmigration matters that protect you.";
   const [cases, services] = await Promise.all([getFeaturedPublicCases(), getPublicServices()]);
   return (
@@ -36,9 +36,10 @@ export default async function Home({
             <div className="w-full max-w-[51rem]">
               <p className="inline-flex items-center gap-2 border border-white/15 bg-white/[.08] px-3.5 py-2 text-[11px] font-bold tracking-[.15em] text-[#d9d1b5] shadow-[inset_0_1px_0_rgba(255,255,255,.1)] backdrop-blur-md">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#c5b780] shadow-[0_0_0_4px_rgba(197,183,128,.12)]" />
-                {t.tagline}
+                <EditableText contentKey="home.hero.tagline">{t.tagline}</EditableText>
               </p>
-              <TextEffect
+              <EditableTextEffect
+                contentKey="home.hero.title"
                 per="line"
                 as="h1"
                 className="mt-6 max-w-[51rem] text-[clamp(2.5rem,5.4vw,4.5rem)] font-bold leading-[1.035] tracking-[-.052em] text-white [text-shadow:0_2px_24px_rgba(0,0,0,.2)]"
@@ -65,9 +66,9 @@ export default async function Home({
                 }}
               >
                 {heroLines}
-              </TextEffect>
+              </EditableTextEffect>
               <p className="mt-6 max-w-[40rem] text-base font-medium leading-7 text-slate-200/90 sm:text-[1.08rem] sm:leading-8">
-                {t.heroSub}
+                <EditableText contentKey="home.hero.description" multiline>{t.heroSub}</EditableText>
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -94,12 +95,10 @@ export default async function Home({
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
-              OUR SERVICES
+              <EditableText contentKey="home.services.kicker">OUR SERVICES</EditableText>
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
-              {zh
-                ? "为您争取清晰、可行的解决方案"
-                : "Clear, practical paths forward"}
+              <EditableText contentKey="home.services.title">{zh ? "为您争取清晰、可行的解决方案" : "Clear, practical paths forward"}</EditableText>
             </h2>
           </div>
           <Link
@@ -117,17 +116,13 @@ export default async function Home({
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
-                CASE RESULTS
+                <EditableText contentKey="home.cases.kicker">CASE RESULTS</EditableText>
               </p>
               <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
-                {zh
-                  ? "用结果，回应每一份托付。"
-                  : "Results that reflect careful work."}
+                <EditableText contentKey="home.cases.title">{zh ? "用结果，回应每一份托付。" : "Results that reflect careful work."}</EditableText>
               </h2>
               <p className="mt-3 text-sm text-slate-600">
-                {zh
-                  ? "部分公开脱敏案例展示；每个案件均须独立评估。"
-                  : "Selected public anonymized references; every matter requires individual assessment."}
+                <EditableText contentKey="home.cases.description" multiline>{zh ? "部分公开脱敏案例展示；每个案件均须独立评估。" : "Selected public anonymized references; every matter requires individual assessment."}</EditableText>
               </p>
             </div>
             <Link
@@ -150,17 +145,13 @@ export default async function Home({
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 lg:grid-cols-[.88fr_1.12fr]">
           <div>
             <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
-              WHY YONG SHENG
+              <EditableText contentKey="home.why.kicker">WHY YONG SHENG</EditableText>
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-[-.025em] text-[#1a243f]">
-              {zh
-                ? "把复杂问题，交给值得信赖的团队。"
-                : "Bring complex matters to a team you can trust."}
+              <EditableText contentKey="home.why.title">{zh ? "把复杂问题，交给值得信赖的团队。" : "Bring complex matters to a team you can trust."}</EditableText>
             </h2>
             <p className="mt-5 leading-7 text-slate-600">
-              {zh
-                ? "从首次咨询到后续跟进，我们始终保持清晰沟通，尊重您的时间、隐私和每一个重要决定。"
-                : "From consultation through follow-up, we communicate clearly and respect your time, privacy, and decisions."}
+              <EditableText contentKey="home.why.description" multiline>{zh ? "从首次咨询到后续跟进，我们始终保持清晰沟通，尊重您的时间、隐私和每一个重要决定。" : "From consultation through follow-up, we communicate clearly and respect your time, privacy, and decisions."}</EditableText>
             </p>
             <Link
               href={`/${locale}/about`}

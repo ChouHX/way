@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { getDictionary, type Locale } from "@/lib/i18n";
 import { InView } from "@/components/core/in-view";
+import { EditableText } from "@/components/inline-editor";
 
 export function PageHero({
   locale,
@@ -39,13 +40,13 @@ export function PageHero({
         <div className="max-w-4xl">
           <p className="flex items-center gap-3 text-xs font-bold tracking-[.17em] text-[#c5b780]">
             <span className="h-px w-7 bg-[#c5b780]" />
-            {kicker}
+            <EditableText contentKey="hero.kicker">{kicker}</EditableText>
           </p>
           <h1 className="mt-5 max-w-4xl text-[clamp(2.35rem,5vw,3.75rem)] font-bold leading-[1.06] tracking-[-.04em] text-white">
-            {title}
+            <EditableText contentKey="hero.title">{title}</EditableText>
           </h1>
           <p className="mt-6 max-w-2xl text-[1.05rem] font-medium leading-8 text-white/75">
-            {description}
+            <EditableText contentKey="hero.description" multiline>{description}</EditableText>
           </p>
         </div>
       </div>
@@ -58,10 +59,12 @@ export function SectionHeading({
   kicker,
   title,
   description,
+  cmsKey,
 }: {
   kicker: string;
   title: string;
   description?: string;
+  cmsKey?: string;
 }) {
   return (
     <InView
@@ -73,11 +76,11 @@ export function SectionHeading({
       transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
     >
       <div className="max-w-2xl">
-        <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">{kicker}</p>
+        <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">{cmsKey ? <EditableText contentKey={`${cmsKey}.kicker`}>{kicker}</EditableText> : kicker}</p>
         <h2 className="mt-3 text-3xl font-bold leading-tight tracking-[-.025em] text-[#1a243f]">
-          {title}
+          {cmsKey ? <EditableText contentKey={`${cmsKey}.title`}>{title}</EditableText> : title}
         </h2>
-        {description && <p className="mt-4 leading-7 text-slate-600">{description}</p>}
+        {description && <p className="mt-4 leading-7 text-slate-600">{cmsKey ? <EditableText contentKey={`${cmsKey}.description`} multiline>{description}</EditableText> : description}</p>}
       </div>
     </InView>
   );
@@ -110,12 +113,10 @@ export function ConsultationCallout({ locale }: { locale: Locale }) {
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 py-12 md:flex-row md:items-center">
         <div>
           <p className="text-xs font-bold tracking-[.14em] text-[#8a7d51]">
-            YONG SHENG CONSULTNG
+            <EditableText contentKey="callout.kicker">YONG SHENG CONSULTNG</EditableText>
           </p>
           <h2 className="mt-2 text-2xl font-bold tracking-[-.025em] text-[#1a243f]">
-            {locale === "zh"
-              ? "让专业建议成为您的下一步。"
-              : "Make professional guidance your next step."}
+            <EditableText contentKey="callout.title">{locale === "zh" ? "让专业建议成为您的下一步。" : "Make professional guidance your next step."}</EditableText>
           </h2>
         </div>
         <Link

@@ -516,6 +516,13 @@ function SitePanel({
             </div>
           </div>
         </Card>
+        <Card className="p-5">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-3"><Eye size={17} className="text-blue-600" /><div><h3 className="text-sm font-bold text-[#0f2747]">可视化编辑</h3><p className="mt-0.5 text-[11px] text-slate-500">在真实页面中双击带虚线标记的固定文案进行修改。</p></div></div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {([['/zh?edit=1', '中文首页'], ['/zh/about?edit=1', '中文关于页'], ['/en?edit=1', 'English home'], ['/en/about?edit=1', 'English about']] as const).map(([href, label]) => <a key={href} href={href} target="_blank" rel="noreferrer" className="pressable flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3.5 py-3 text-xs font-bold text-[#0f2747] hover:border-blue-300 hover:bg-blue-50/40"><span>{label}</span><span className="text-blue-600">打开 →</span></a>)}
+          </div>
+          <p className="mt-3 text-[10px] leading-4 text-slate-400">编辑内容按页面和语言独立保存；底部工具条可恢复本页全部默认文案。</p>
+        </Card>
         <div>
           <Button disabled={loading} className="w-fit py-2.5 text-xs">
             {loading ? (

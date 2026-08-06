@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const resource = url.searchParams.get("resource") ?? "dashboard";
     if (resource === "site") {
       const { results } = await DB.prepare(
-        "SELECT key,value FROM site_settings",
+        "SELECT key,value FROM site_settings WHERE key NOT LIKE 'page_content:%'",
       ).all<{ key: string; value: string }>();
       return json({
         settings: Object.fromEntries(results.map((x) => [x.key, x.value])),

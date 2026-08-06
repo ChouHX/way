@@ -12,6 +12,7 @@ import { phoneHref, type ContactSettings } from "@/lib/contact";
 import { MobileNav } from "./mobile-nav";
 import { LanguageMenu } from "./language-menu";
 import { PageTransition } from "./page-transition";
+import { InlineEditorProvider } from "./inline-editor";
 
 const paths = ["", "/services", "/cases", "/about", "/contact"];
 
@@ -85,10 +86,8 @@ export function SiteShell({
   }, []);
 
   return (
-    <div
-      lang={locale === "zh" ? "zh-CN" : "en"}
-      className="site-locale"
-    >
+    <InlineEditorProvider locale={locale}>
+    <div lang={locale === "zh" ? "zh-CN" : "en"} className="site-locale">
       <header className="sticky top-0 z-40 bg-[#1a243f] shadow-[0_1px_0_rgba(255,255,255,.1)]">
         <div className="relative mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5">
           <Brand locale={locale} logoUrl={logoUrl} />
@@ -253,6 +252,7 @@ export function SiteShell({
       <PageTransition>{children}</PageTransition>
       <Footer locale={locale} services={services} contact={contact} />
     </div>
+    </InlineEditorProvider>
   );
 }
 

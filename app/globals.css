@@ -226,6 +226,22 @@ samp {
 .admin-icon-strip > button {
   scroll-snap-align: start;
 }
+.cms-edit-mode .cms-editable {
+  cursor: text;
+  border-radius: 0.2rem;
+  outline: 1px dashed rgba(197, 183, 128, 0.8);
+  outline-offset: 4px;
+  transition: background-color 140ms ease, outline-color 140ms ease;
+}
+.cms-edit-mode .cms-editable:hover,
+.cms-edit-mode .cms-editable:focus-within {
+  background: rgba(197, 183, 128, 0.14);
+  outline-color: #8a7d51;
+}
+.cms-edit-mode .cms-editable:hover > .cms-pencil,
+.cms-edit-mode .cms-editable:hover > .cms-reset {
+  display: grid;
+}
 .stagger-card:nth-child(2) {
   animation-delay: 60ms;
 }
